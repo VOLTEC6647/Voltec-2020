@@ -1,0 +1,4 @@
+[submodule "lib6647"]
+	path = lib6647
+	url = https://github.com/VOLTEC6647/lib6647
+	branch = dev
