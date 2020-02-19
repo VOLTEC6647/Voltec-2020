@@ -1,0 +1,70 @@
+{
+	"chassis": {
+		"falcons": [
+			{
+				"name": "frontLeft",
+				"port": 1,
+				"limiter": 1,
+				"neutralMode": "Brake",
+				"inverted": true,
+				"sensors": {
+					"phase": false,
+					"primary": {
+						"feedbackDevice": "IntegratedSensor",
+						"sensorPos": 0
+					}
+				}
+			},
+			{
+				"name": "frontRight",
+				"port": 2,
+				"limiter": 1,
+				"neutralMode": "Brake",
+				"inverted": false,
+				"sensors": {
+					"phase": false,
+					"primary": {
+						"feedbackDevice": "IntegratedSensor",
+						"sensorPos": 0
+					}
+				}
+			},
+			{
+				"name": "backLeft",
+				"port": 3,
+				"limiter": 1,
+				"neutralMode": "Brake",
+				"inverted": true,
+				"sensors": {
+					"phase": false,
+					"primary": {
+						"feedbackDevice": "IntegratedSensor",
+						"sensorPos": 0
+					}
+				}
+			},
+			{
+				"name": "backRight",
+				"port": 4,
+				"limiter": 1,
+				"neutralMode": "Brake",
+				"inverted": false,
+				"sensors": {
+					"phase": false,
+					"primary": {
+						"feedbackDevice": "IntegratedSensor",
+						"sensorPos": 0
+					}
+				}
+			}
+		],
+		"ahrs": [
+			{
+				"name": "navX",
+				"port": "MXP",
+				"resetOnStart": false,
+				"inverted": false
+			}
+		]
+	}
+}

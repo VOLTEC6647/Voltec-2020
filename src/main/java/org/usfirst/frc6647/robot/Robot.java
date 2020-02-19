@@ -7,6 +7,7 @@
 
 package org.usfirst.frc6647.robot;
 
+import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.lib6647.loops.LooperRobot;
 import org.usfirst.lib6647.oi.JController;
 
@@ -36,7 +37,7 @@ public class Robot extends LooperRobot {
 			instance = this;
 
 		initJoysticks();
-		// registerSubsystems(Chassis::new);
+		registerSubsystems(Chassis::new);
 	}
 
 	/**
@@ -56,7 +57,7 @@ public class Robot extends LooperRobot {
 			driver1.setXY(Hand.kRight, 2, 4);
 		}
 
-		// Store instantiated JController object in the joysticks HashMap.
-		joysticks.put("driver1", driver1);
+		// Register each instantiated JController object in the joysticks HashMap.
+		registerJoystick(driver1, "driver1");
 	}
 }
