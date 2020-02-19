@@ -73,7 +73,7 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		orchestra = new Orchestra(List.of(getFalcon("frontLeft"), getFalcon("backLeft"), getFalcon("frontRight"),
 				getFalcon("backRight")));
 
-		File[] songs = new File(Filesystem.getDeployDirectory() + "/midi/").listFiles();
+		File[] songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
 		Random random = new Random();
 
 		joystick.get("Start").whenPressed(() -> orchestra.loadMusic(songs[random.nextInt(songs.length)].toString()));
