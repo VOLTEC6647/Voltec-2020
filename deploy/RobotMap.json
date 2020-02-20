@@ -66,5 +66,16 @@
 				"inverted": false
 			}
 		]
+	},
+	"intake":{
+		"victors": [
+			{
+				"name": "intakeMotor",
+				"port": 9,
+				"limiter": 0.7,
+				"neutralMode":"Coast",
+				"inverted": false
+			}
+		]
 	}
 }
