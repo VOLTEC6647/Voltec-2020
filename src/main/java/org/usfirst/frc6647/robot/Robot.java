@@ -39,8 +39,6 @@ public class Robot extends LooperRobot {
 
 		initJoysticks();
 		registerSubsystems(Chassis::new, Intake::new);
-
-
 	}
 
 	/**
