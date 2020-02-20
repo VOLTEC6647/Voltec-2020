@@ -8,6 +8,7 @@
 package org.usfirst.frc6647.robot;
 
 import org.usfirst.frc6647.subsystems.Chassis;
+import org.usfirst.frc6647.subsystems.Intake;
 import org.usfirst.lib6647.loops.LooperRobot;
 import org.usfirst.lib6647.oi.JController;
 
@@ -37,7 +38,9 @@ public class Robot extends LooperRobot {
 			instance = this;
 
 		initJoysticks();
-		registerSubsystems(Chassis::new);
+		registerSubsystems(Chassis::new, Intake::new);
+
+
 	}
 
 	/**
