@@ -21,7 +21,9 @@
 		"LStickUp": "Stick1_-1",
 		"LStickDown": "Stick1_1",
 		"RStickLeft": "Stick2_-1",
-		"RStickRight": "Stick2_1"
+		"RStickRight": "Stick2_1",
+		"RStickUp": "Stick5_-1",
+		"RStickDown": "Stick5_1"
 	},
 	"Generic   USB  Joystick": {
 		"1": "Button1",

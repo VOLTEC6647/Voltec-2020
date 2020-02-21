@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Random;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.music.Orchestra;
 
 import org.usfirst.frc6647.robot.Robot;
@@ -38,6 +36,9 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 
 	/** {@link Orchestra} object instance, for playing MIDI files. */
 	private Orchestra orchestra;
+
+	/** Stores last set limiter value. */
+	private double lastLimiter = Double.NaN;
 
 	/**
 	 * A lambda of every {@link SuperSubsystem Subsystem} must be provided to the
@@ -76,14 +77,26 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		File[] songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
 		Random random = new Random();
 
-		joystick.get("Options").whenPressed(() -> orchestra.loadMusic(songs[random.nextInt(songs.length)].toString()));
-		joystick.get("LTrigger").and(joystick.get("RBumper")).and(joystick.get("Share")).and(joystick.get("RStickDown"))
-				.whenActive(() -> {
-					if (!orchestra.isPlaying())
-						orchestra.play();
-					else
-						orchestra.pause();
-				});
+		joystick.get("Options").whenPressed(() -> { // Prepare a song to play.
+			var song = songs[random.nextInt(songs.length)].toString();
+			System.out.println("Ready to play: '" + song + "'...");
+			orchestra.loadMusic(song);
+		});
+		joystick.get("L2").and(joystick.get("R2")).and(joystick.get("Share")).whenActive(() -> { // Play current song.
+			if (!orchestra.isPlaying())
+				orchestra.play();
+			else
+				orchestra.pause();
+		});
+
+		joystick.get("L2").whenPressed(() -> { // Turbo button.
+			lastLimiter = frontLeft.getLimiter();
+			frontLeft.setLimiter(1);
+			frontRight.setLimiter(1);
+		}).whenReleased(() -> {
+			frontLeft.setLimiter(lastLimiter);
+			frontRight.setLimiter(lastLimiter);
+		});
 	}
 
 	/**
@@ -93,8 +106,8 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	 * @param rotation The drive's rotation speed
 	 */
 	private void arcadeDrive(double forward, double rotation) {
-		frontLeft.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, -rotation);
-		frontRight.set(ControlMode.PercentOutput, forward, DemandType.ArbitraryFeedForward, rotation);
+		frontLeft.setWithRamp(forward, -rotation);
+		frontRight.setWithRamp(forward, rotation);
 	}
 
 	@Override

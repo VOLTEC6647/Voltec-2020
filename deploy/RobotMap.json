@@ -4,7 +4,7 @@
 			{
 				"name": "frontLeft",
 				"port": 1,
-				"limiter": 1,
+				"limiter": 0.5,
 				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
@@ -18,7 +18,7 @@
 			{
 				"name": "frontRight",
 				"port": 2,
-				"limiter": 1,
+				"limiter": 0.5,
 				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
@@ -32,7 +32,7 @@
 			{
 				"name": "backLeft",
 				"port": 3,
-				"limiter": 1,
+				"limiter": 0.5,
 				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
@@ -46,7 +46,7 @@
 			{
 				"name": "backRight",
 				"port": 4,
-				"limiter": 1,
+				"limiter": 0.5,
 				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
@@ -67,14 +67,19 @@
 			}
 		]
 	},
-	"intake":{
-		"victors": [
+	"intake": {
+		"talons": [
 			{
-				"name": "intakeMotor",
-				"port": 9,
-				"limiter": 0.7,
-				"neutralMode":"Coast",
-				"inverted": false
+				"name": "intake",
+				"port": 5,
+				"neutralMode": "Coast",
+				"inverted": false,
+				"config": {
+					"slot0": {
+						"p": 5,
+						"d": 40
+					}
+				}
 			}
 		]
 	}
