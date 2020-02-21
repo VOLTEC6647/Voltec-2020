@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	/** {@link HyperFalcon HyperFalcons} used by this {@link SuperSubsystem}. */
-	private HyperFalcon frontLeft, frontRight;
+	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
 	/** {@link JController} instance used by the Robot. */
 	private JController joystick;
 	/** {@link HyperAHRS} instance of the Robot's NavX. */
@@ -56,9 +56,8 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		// Additional initialiation & configuration.
 		frontLeft = getFalcon("frontLeft");
 		frontRight = getFalcon("frontRight");
-
-		getFalcon("backLeft").follow(frontLeft);
-		getFalcon("backRight").follow(frontRight);
+		backLeft = getFalcon("backLeft");
+		backRight = getFalcon("backRight");
 
 		joystick = Robot.getInstance().getJoystick("driver1");
 		navX = getAHRS("navX");
@@ -74,29 +73,42 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		orchestra = new Orchestra(List.of(getFalcon("frontLeft"), getFalcon("backLeft"), getFalcon("frontRight"),
 				getFalcon("backRight")));
 
-		File[] songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
-		Random random = new Random();
+		var songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
 
-		joystick.get("Options").whenPressed(() -> { // Prepare a song to play.
-			var song = songs[random.nextInt(songs.length)].toString();
+		Runnable prepareSong = () -> { // Prepare a song to play.
+			var song = songs[new Random().nextInt(songs.length)].toString();
 			System.out.println("Ready to play: '" + song + "'...");
 			orchestra.loadMusic(song);
-		});
-		joystick.get("L2").and(joystick.get("R2")).and(joystick.get("Share")).whenActive(() -> { // Play current song.
+		};
+		Runnable playPauseSong = () -> { // Play current song.
 			if (!orchestra.isPlaying())
 				orchestra.play();
 			else
 				orchestra.pause();
-		});
+		};
 
-		joystick.get("L2").whenPressed(() -> { // Turbo button.
+		Runnable enableTurbo = () -> { // zu schnell!
 			lastLimiter = frontLeft.getLimiter();
 			frontLeft.setLimiter(1);
 			frontRight.setLimiter(1);
-		}).whenReleased(() -> {
+		};
+		Runnable disableTurbo = () -> { // zu langsam...
 			frontLeft.setLimiter(lastLimiter);
 			frontRight.setLimiter(lastLimiter);
-		});
+		};
+
+		if (joystick.getName().equals("Wireless Controller")) {
+			joystick.get("Options").whenPressed(prepareSong);
+			joystick.get("L2").and(joystick.get("R2")).and(joystick.get("Share")).whenActive(playPauseSong);
+
+			joystick.get("L2").whenPressed(enableTurbo).whenReleased(disableTurbo);
+		} else if (joystick.getName().equals("Generic   USB  Joystick")) {
+			joystick.get("Start").whenPressed(prepareSong);
+			joystick.get("LTrigger").and(joystick.get("RTrigger")).and(joystick.get("Select"))
+					.whenActive(playPauseSong);
+
+			joystick.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
+		}
 	}
 
 	/**
@@ -107,7 +119,10 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	 */
 	private void arcadeDrive(double forward, double rotation) {
 		frontLeft.setWithRamp(forward, -rotation);
+		backLeft.setWithRamp(forward, -rotation);
+		
 		frontRight.setWithRamp(forward, rotation);
+		backRight.setWithRamp(forward, rotation);
 	}
 
 	@Override

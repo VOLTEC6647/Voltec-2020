@@ -36,17 +36,16 @@ public class Intake extends SuperSubsystem implements SuperTalon {
 	 * {@link SuperSubsystem} into this method.
 	 */
 	private void configureButtonBindings() {
-		joystick.get("L1").whenPressed(() -> setVoltage(30), this).whenReleased(() -> intake.stopMotor(), this); // Out
-		joystick.get("R1").whenPressed(() -> setVoltage(-30), this).whenReleased(() -> intake.stopMotor(), this); // In
-	}
+		Runnable ballOut = () -> intake.setVoltage(30); // Ball Out
+		Runnable ballIn = () -> intake.setVoltage(-30); // Ball In
+		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor
 
-	/**
-	 * Sets main {@link #intake} motor to the given voltage.
-	 * 
-	 * @param outputVolts The voltage to set the {@link #intake} motor to.
-	 */
-	private void setVoltage(double outputVolts) {
-		intake.setVoltage(outputVolts);
-		intake.feed();
+		if (joystick.getName().equals("Wireless Controller")) {
+			joystick.get("L1").whenPressed(ballOut, this).whenReleased(stopIntake, this);
+			joystick.get("R1").whenPressed(ballIn, this).whenReleased(stopIntake, this);
+		} else if (joystick.getName().equals("Generic   USB  Joystick")) {
+			joystick.get("LBumper").whenPressed(ballOut, this).whenReleased(stopIntake, this);
+			joystick.get("RBumper").whenPressed(ballIn, this).whenReleased(stopIntake, this);
+		}
 	}
 }
