@@ -43,7 +43,8 @@ public class Intake extends SuperSubsystem implements SuperTalon {
 		if (joystick.getName().equals("Wireless Controller")) {
 			joystick.get("L1").whenPressed(ballOut, this).whenReleased(stopIntake, this);
 			joystick.get("R1").whenPressed(ballIn, this).whenReleased(stopIntake, this);
-		} else if (joystick.getName().equals("Generic   USB  Joystick")) {
+		} else if (joystick.getName().equals("Generic   USB  Joystick")
+				|| joystick.getName().toLowerCase().contains("xbox")) {
 			joystick.get("LBumper").whenPressed(ballOut, this).whenReleased(stopIntake, this);
 			joystick.get("RBumper").whenPressed(ballIn, this).whenReleased(stopIntake, this);
 		}

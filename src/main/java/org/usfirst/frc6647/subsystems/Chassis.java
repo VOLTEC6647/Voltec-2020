@@ -108,6 +108,11 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 					.whenActive(playPauseSong);
 
 			joystick.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
+		} else if (joystick.getName().toLowerCase().contains("xbox")) {
+			joystick.get("Start").whenPressed(prepareSong);
+			joystick.get("LTrigger").and(joystick.get("RTrigger")).and(joystick.get("Back")).whenActive(playPauseSong);
+
+			joystick.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
 		}
 	}
 
@@ -120,7 +125,7 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	private void arcadeDrive(double forward, double rotation) {
 		frontLeft.setWithRamp(forward, -rotation);
 		backLeft.setWithRamp(forward, -rotation);
-		
+
 		frontRight.setWithRamp(forward, rotation);
 		backRight.setWithRamp(forward, rotation);
 	}

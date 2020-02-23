@@ -56,6 +56,10 @@ public class Robot extends LooperRobot {
 		} else if (driver1.getName().equals("Generic   USB  Joystick")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 4);
+		} else if (driver1.getName().toLowerCase().contains("xbox")
+				|| driver1.getName().equals("Controller (Gamepad F310)")) {
+			driver1.setXY(Hand.kLeft, 0, 1);
+			driver1.setXY(Hand.kLeft, 4, 5);
 		}
 
 		// Register each instantiated JController object in the joysticks HashMap.
