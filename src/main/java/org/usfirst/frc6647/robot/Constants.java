@@ -7,8 +7,6 @@
 
 package org.usfirst.frc6647.robot;
 
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
