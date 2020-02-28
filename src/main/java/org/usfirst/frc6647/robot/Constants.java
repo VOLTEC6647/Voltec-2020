@@ -7,6 +7,8 @@
 
 package org.usfirst.frc6647.robot;
 
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -18,4 +20,8 @@ package org.usfirst.frc6647.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public class shooter{
+        public static final int id = 3;
+        public static final double kP = 0, kD = 0, kF = 0;
+    }
 }
