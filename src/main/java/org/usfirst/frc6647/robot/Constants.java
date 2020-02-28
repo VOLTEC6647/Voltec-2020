@@ -18,4 +18,8 @@ package org.usfirst.frc6647.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public class shooter{
+        public static final int id = 3;
+        public static final double kP = 0, kD = 0, kF = 0;
+    }
 }
