@@ -1,5 +1,7 @@
 package org.usfirst.frc6647.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import org.usfirst.frc6647.robot.Robot;
 import org.usfirst.lib6647.loops.LooperRobot;
 import org.usfirst.lib6647.oi.JController;
@@ -36,8 +38,8 @@ public class Intake extends SuperSubsystem implements SuperTalon {
 	 * {@link SuperSubsystem} into this method.
 	 */
 	private void configureButtonBindings() {
-		Runnable ballOut = () -> intake.setVoltage(30); // Ball Out
-		Runnable ballIn = () -> intake.setVoltage(-30); // Ball In
+		Runnable ballOut = () -> intake.set(ControlMode.Current, 40); // Ball Out
+		Runnable ballIn = () -> intake.set(ControlMode.Current, -40); // Ball In
 		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor
 
 		if (joystick.getName().equals("Wireless Controller")) {
