@@ -8,7 +8,10 @@
 package org.usfirst.frc6647.robot;
 
 import org.usfirst.lib6647.json.JSONRobot;
+import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
+import org.usfirst.lib6647.oi.JController;
+import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 

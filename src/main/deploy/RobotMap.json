@@ -84,5 +84,50 @@
 		]
 	},
 	"turret": {
+		"sparks": [
+			{
+				"name": "turret",
+				"port": 0,
+				"type": "Brushless",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"outputMin": -1,
+						"outputMax": 1
+					}
+				}
+			}
+		]
+	},
+	"shooter": {
+		"sparks": [
+			{
+				"name": "shooter",
+				"port": 3,
+				"type": "Brushless",
+				"pid": {
+					"slot0": {
+						"p": 0,
+						"i": 0,
+						"d": 0,
+						"f": 0
+					}
+				}
+			}
+		],
+		"servos": [
+			{
+				"name": "hood",
+				"channel": 0,
+				"initialValue": 0
+			}
+		],
+		"solenoids": [
+			{
+				"name": "brake",
+				"channel": 0,
+				"initialValue": false
+			}
+		]
 	}
 }

@@ -11,65 +11,73 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import org.usfirst.frc6647.robot.Constants;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperServo;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperSolenoid;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
-public class Shooter extends SuperSubsystem {
+public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid, SuperSparkMax {
+	private Servo hood;
+	private Solenoid stop;
 
-  private CANSparkMax shooter = new CANSparkMax(Constants.shooter.id, MotorType.kBrushless);
-  private CANPIDController PIDs;
-  private CANEncoder encoder;
-  private double speed, ty, distance;
-  private Servo hood = new Servo(0);
-  private Servo stop = new Servo(1);
+	private CANSparkMax shooter;
+	private CANPIDController shooterPID;
+	private CANEncoder shooterEncoder;
 
-  /**
-   * Creates a new Shooter.
-   */
-  public Shooter() {
-    super("shooter");
-    PIDs = shooter.getPIDController();
-    encoder = shooter.getEncoder();
+	private double speed, ty, distance;
 
-    shooter.restoreFactoryDefaults();
-    PIDs.setP(Constants.shooter.kP);
-    PIDs.setD(Constants.shooter.kD);
-    PIDs.setFF(Constants.shooter.kF);
-    PIDs.setOutputRange(0, 3000);
-  }
+	/**
+	 * Creates a new {@link Shooter}.
+	 */
+	public Shooter() {
+		super("shooter");
 
-  @Override
-  public void periodic() {
-    Shuffleboard.getTab("Robot")
-        .add("Shooter Neo-RPM", encoder.getVelocity())
-        .withWidget(BuiltInWidgets.kGraph);
+		initServos(robotMap, getName());
+		initSolenoids(robotMap, getName());
+		initSparks(robotMap, getName());
 
-  }
+		hood = getServo("hood");
+		stop = getSolenoid("stop");
 
-  public void setSpeed() {
-    PIDs.setReference(calculateSpeed(), ControlType.kVelocity);
-  }
+		shooter = getSpark("shooter");
+		shooterPID = getSparkPID("shooter");
+		shooterEncoder = getSparkEncoder("shooter");
+	}
 
-  public double calculateSpeed() {
-    ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-    distance = ((3.8883 * Math.pow(10, 6)) * Math.pow((ty + 31.2852), -4.9682) + 113.358) / (ty + 31.2852) - 0.978398;
-    if (distance < 3) {
+	@Override
+	public void periodic() {
+		Shuffleboard.getTab("Robot").add("Shooter Neo-RPM", shooterEncoder.getVelocity())
+				.withWidget(BuiltInWidgets.kGraph);
+	}
 
-    } else if (distance < 6) {
+	public void setSpeed() {
+		shooterPID.setReference(calculateSpeed(), ControlType.kVelocity);
+	}
 
-    } else if (distance < 9) {
+	public void stop() {
+		shooter.stopMotor();
+	}
 
-    } else {
+	public double calculateSpeed() {
+		ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+		distance = ((3.8883 * Math.pow(10, 6)) * Math.pow((ty + 31.2852), -4.9682) + 113.358) / (ty + 31.2852)
+				- 0.978398;
+		if (distance < 3) {
 
-    }
-    return speed;
-  }
+		} else if (distance < 6) {
 
+		} else if (distance < 9) {
+
+		} else {
+
+		}
+		return speed;
+	}
 }
