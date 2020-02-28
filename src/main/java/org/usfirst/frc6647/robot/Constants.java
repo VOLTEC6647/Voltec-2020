@@ -22,4 +22,8 @@ public final class Constants {
         public static final int id = 3;
         public static final double kP = 0, kD = 0, kF = 0;
     }
+    public class turret{
+        public static final int id = 4;
+        public static final double kP = 0.5;
+    }
 }

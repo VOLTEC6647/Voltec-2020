@@ -18,6 +18,7 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -28,7 +29,7 @@ public class Shooter extends SuperSubsystem {
   private CANEncoder encoder;
   private double speed, ty, distance;
   private Servo hood = new Servo(0);
-  private Servo stop = new Servo(1);
+  private Solenoid stop = new Solenoid(1);
 
   /**
    * Creates a new Shooter.
