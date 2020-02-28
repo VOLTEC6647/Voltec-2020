@@ -2,8 +2,10 @@ package org.usfirst.frc6647.robot;
 
 import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.frc6647.subsystems.Intake;
+import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopContainer;
 import org.usfirst.lib6647.oi.JController;
+import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 
