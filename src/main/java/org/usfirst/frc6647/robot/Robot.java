@@ -7,14 +7,23 @@
 
 package org.usfirst.frc6647.robot;
 
-import org.usfirst.frc6647.subsystems.Chassis;
-import org.usfirst.frc6647.subsystems.Intake;
-import org.usfirst.lib6647.loops.LooperRobot;
-import org.usfirst.lib6647.oi.JController;
+import org.usfirst.lib6647.json.JSONRobot;
+import org.usfirst.lib6647.loops.LoopType;
 
-import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends LooperRobot {
+/**
+ * Main {@link Robot} class, holds everything needed for the {@link Robot} to
+ * run.
+ */
+public class Robot extends JSONRobot {
+	/**
+	 * The {@link Robot}'s {@link RobotContainer} instance, which contains all
+	 * {@link Loop loops}, {@link SuperSubsystem subsystems}, and {@link JController
+	 * joysticks}.
+	 */
+	private final RobotContainer container;
+
 	/** Static {@link Robot} instance. */
 	private static Robot instance = null;
 
@@ -37,32 +46,56 @@ public class Robot extends LooperRobot {
 		if (instance == null) // Might not be necessary, but just in case.
 			instance = this;
 
-		initJoysticks();
-		registerSubsystems(Chassis::new, Intake::new);
+		container = new RobotContainer();
+	}
+
+	@Override
+	public void robotPeriodic() {
+		CommandScheduler.getInstance().run();
+	}
+
+	@Override
+	public void disabledInit() {
+		// Start disabled loops, stop enabled, teleop, and auto.
+		container.getLooper(LoopType.ENABLED).stop();
+		container.getLooper(LoopType.TELEOP).stop();
+		container.getLooper(LoopType.AUTO).stop();
+		container.getLooper(LoopType.DISABLED).start();
+	}
+
+	@Override
+	public void autonomousInit() {
+		// Start enabled & auto loops, stop teleop & disabled.
+		container.getLooper(LoopType.ENABLED).start();
+		container.getLooper(LoopType.TELEOP).stop();
+		container.getLooper(LoopType.AUTO).start();
+		container.getLooper(LoopType.DISABLED).stop();
+	}
+
+	@Override
+	public void teleopInit() {
+		// Start enabled & teleop loops, stop auto & disabled.
+		container.getLooper(LoopType.ENABLED).start();
+		container.getLooper(LoopType.TELEOP).start();
+		container.getLooper(LoopType.AUTO).stop();
+		container.getLooper(LoopType.DISABLED).stop();
+	}
+
+	@Override
+	public void testInit() {
+		// Stop every loop.
+		container.getLooper(LoopType.ENABLED).stop();
+		container.getLooper(LoopType.TELEOP).stop();
+		container.getLooper(LoopType.AUTO).stop();
+		container.getLooper(LoopType.DISABLED).stop();
 	}
 
 	/**
-	 * Run any {@link JController} initialization here.
+	 * Get this {@link Robot}'s {@link RobotContainer}.
+	 * 
+	 * @return The {@link RobotContainer} used by this {@link Robot}.
 	 */
-	private void initJoysticks() {
-		// Create JController object.
-		var driver1 = new JController(0);
-
-		System.out.printf("Found: '%s'!\n", driver1.getName());
-
-		if (driver1.getName().equals("Wireless Controller")) {
-			driver1.setXY(Hand.kLeft, 0, 1);
-			driver1.setXY(Hand.kRight, 2, 5);
-		} else if (driver1.getName().equals("Generic   USB  Joystick")) {
-			driver1.setXY(Hand.kLeft, 0, 1);
-			driver1.setXY(Hand.kRight, 2, 4);
-		} else if (driver1.getName().toLowerCase().contains("xbox")
-				|| driver1.getName().equals("Controller (Gamepad F310)")) {
-			driver1.setXY(Hand.kLeft, 0, 1);
-			driver1.setXY(Hand.kLeft, 4, 5);
-		}
-
-		// Register each instantiated JController object in the joysticks HashMap.
-		registerJoystick(driver1, "driver1");
+	public RobotContainer getContainer() {
+		return container;
 	}
 }

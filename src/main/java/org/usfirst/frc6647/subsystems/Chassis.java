@@ -10,7 +10,6 @@ import org.usfirst.frc6647.robot.Robot;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
-import org.usfirst.lib6647.loops.LooperRobot;
 import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperAHRS;
@@ -59,7 +58,7 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		backLeft = getFalcon("backLeft");
 		backRight = getFalcon("backRight");
 
-		joystick = Robot.getInstance().getJoystick("driver1");
+		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 		navX = getAHRS("navX");
 
 		configureButtonBindings();

@@ -3,7 +3,6 @@ package org.usfirst.frc6647.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import org.usfirst.frc6647.robot.Robot;
-import org.usfirst.lib6647.loops.LooperRobot;
 import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperTalon;
@@ -28,7 +27,7 @@ public class Intake extends SuperSubsystem implements SuperTalon {
 		initTalons(robotMap, getName());
 
 		intake = getTalon("intake");
-		joystick = Robot.getInstance().getJoystick("driver1");
+		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 
 		configureButtonBindings();
 	}
