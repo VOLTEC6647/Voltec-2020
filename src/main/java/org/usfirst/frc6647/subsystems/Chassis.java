@@ -61,57 +61,33 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 		navX = getAHRS("navX");
 
-		configureButtonBindings();
-	}
-
-	/**
-	 * Throw all Command initialization and {@link JController} binding for this
-	 * {@link SuperSubsystem} into this method.
-	 */
-	private void configureButtonBindings() {
 		orchestra = new Orchestra(List.of(getFalcon("frontLeft"), getFalcon("backLeft"), getFalcon("frontRight"),
 				getFalcon("backRight")));
+	}
 
+	public void prepareSong() {
 		var songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
+		var song = songs[new Random().nextInt(songs.length)].toString();
 
-		Runnable prepareSong = () -> { // Prepare a song to play.
-			var song = songs[new Random().nextInt(songs.length)].toString();
-			System.out.println("Ready to play: '" + song + "'...");
-			orchestra.loadMusic(song);
-		};
-		Runnable playPauseSong = () -> { // Play current song.
-			if (!orchestra.isPlaying())
-				orchestra.play();
-			else
-				orchestra.pause();
-		};
+		System.out.println("Ready to play: '" + song + "'...");
+		orchestra.loadMusic(song);
+	}
 
-		Runnable enableTurbo = () -> { // zu schnell!
+	public void toggleSong() {
+		if (!orchestra.isPlaying())
+			orchestra.play();
+		else
+			orchestra.pause();
+	}
+
+	public void setTurbo(boolean turbo, double speed) {
+		if (turbo) {
 			lastLimiter = frontLeft.getLimiter();
-			frontLeft.setLimiter(1);
-			frontRight.setLimiter(1);
-		};
-		Runnable disableTurbo = () -> { // zu langsam...
+			frontLeft.setLimiter(speed);
+			frontRight.setLimiter(speed);
+		} else {
 			frontLeft.setLimiter(lastLimiter);
 			frontRight.setLimiter(lastLimiter);
-		};
-
-		if (joystick.getName().equals("Wireless Controller")) {
-			joystick.get("Options").whenPressed(prepareSong);
-			joystick.get("L2").and(joystick.get("R2")).and(joystick.get("Share")).whenActive(playPauseSong);
-
-			joystick.get("L2").whenPressed(enableTurbo).whenReleased(disableTurbo);
-		} else if (joystick.getName().equals("Generic   USB  Joystick")) {
-			joystick.get("Start").whenPressed(prepareSong);
-			joystick.get("LTrigger").and(joystick.get("RTrigger")).and(joystick.get("Select"))
-					.whenActive(playPauseSong);
-
-			joystick.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
-		} else if (joystick.getName().toLowerCase().contains("xbox")) {
-			joystick.get("Start").whenPressed(prepareSong);
-			joystick.get("LTrigger").and(joystick.get("RTrigger")).and(joystick.get("Back")).whenActive(playPauseSong);
-
-			joystick.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
 		}
 	}
 
@@ -127,10 +103,6 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 
 		frontRight.setWithRamp(forward, rotation);
 		backRight.setWithRamp(forward, rotation);
-	}
-
-	@Override
-	public void periodic() {
 	}
 
 	@Override

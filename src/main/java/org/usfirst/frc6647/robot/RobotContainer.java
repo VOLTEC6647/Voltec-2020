@@ -1,5 +1,7 @@
 package org.usfirst.frc6647.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.frc6647.subsystems.Intake;
 import org.usfirst.lib6647.loops.Loop;
@@ -8,6 +10,7 @@ import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * A 'Container' class for the {@link Robot}, which contains all of the
@@ -35,6 +38,8 @@ public class RobotContainer extends LoopContainer {
 
 		// Register each initialized Subsystem.
 		registerSubsystems(chassis, intake);
+
+		configureButtonBindings();
 	}
 
 	/**
@@ -60,5 +65,50 @@ public class RobotContainer extends LoopContainer {
 
 		// Register each instantiated JController object in the joysticks HashMap.
 		registerJoystick(driver1, "driver1");
+	}
+
+	/**
+	 * Throw all {@link Command} initialization and {@link JController} binding into
+	 * this method.
+	 */
+	private void configureButtonBindings() {
+		var driver1 = getJoystick("driver1");
+
+		// Chassis commands.
+		Runnable prepareSong = () -> chassis.prepareSong(); // Prepare a song to play.
+		Runnable toggleSong = () -> chassis.toggleSong(); // Play/pause current song.
+
+		Runnable enableTurbo = () -> chassis.setTurbo(true, 1); // Zu schnell!
+		Runnable disableTurbo = () -> chassis.setTurbo(false, Double.NaN); // Zu langsam...
+		// ...
+
+		// Intake commands.
+		Runnable ballOut = () -> intake.setMotor(ControlMode.Current, 40); // Ball out.
+		Runnable ballIn = () -> intake.setMotor(ControlMode.Current, -40); // Ball in.
+		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor.
+		// ...
+
+		if (driver1.getName().equals("Wireless Controller")) { // PS4 controller.
+			driver1.get("Options").whenPressed(prepareSong);
+			driver1.get("L2").and(driver1.get("R2")).and(driver1.get("Share")).whenActive(toggleSong);
+			driver1.get("L2").whenPressed(enableTurbo).whenReleased(disableTurbo);
+
+			driver1.get("L1").whenPressed(ballOut, intake).whenReleased(stopIntake, intake);
+			driver1.get("R1").whenPressed(ballIn, intake).whenReleased(stopIntake, intake);
+		} else if (driver1.getName().equals("Generic   USB  Joystick")) { // A random generic controller I own.
+			driver1.get("Start").whenPressed(prepareSong);
+			driver1.get("LTrigger").and(driver1.get("RTrigger")).and(driver1.get("Select")).whenActive(toggleSong);
+			driver1.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
+
+			driver1.get("LBumper").whenPressed(ballOut, intake).whenReleased(stopIntake, intake);
+			driver1.get("RBumper").whenPressed(ballIn, intake).whenReleased(stopIntake, intake);
+		} else if (driver1.getName().toLowerCase().contains("xbox")) { // Any XBOX controller.
+			driver1.get("Start").whenPressed(prepareSong);
+			driver1.get("LTrigger").and(driver1.get("RTrigger")).and(driver1.get("Back")).whenActive(toggleSong);
+			driver1.get("LTrigger").whenPressed(enableTurbo).whenReleased(disableTurbo);
+
+			driver1.get("LBumper").whenPressed(ballOut, intake).whenReleased(stopIntake, intake);
+			driver1.get("RBumper").whenPressed(ballIn, intake).whenReleased(stopIntake, intake);
+		}
 	}
 }

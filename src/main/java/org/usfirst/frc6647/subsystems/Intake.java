@@ -3,7 +3,6 @@ package org.usfirst.frc6647.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import org.usfirst.frc6647.robot.Robot;
-import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperTalon;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperTalon;
@@ -14,8 +13,6 @@ import org.usfirst.lib6647.subsystem.supercomponents.SuperTalon;
 public class Intake extends SuperSubsystem implements SuperTalon {
 	/** Main {@link HyperTalon} used by the Robot's {@link Intake}. */
 	private HyperTalon intake;
-	/** {@link JController} instance used by the Robot. */
-	private JController joystick;
 
 	/**
 	 * A lambda of every {@link SuperSubsystem Subsystem} must be provided to the
@@ -25,29 +22,24 @@ public class Intake extends SuperSubsystem implements SuperTalon {
 		super("intake");
 
 		initTalons(robotMap, getName());
-
 		intake = getTalon("intake");
-		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
-
-		configureButtonBindings();
 	}
 
 	/**
-	 * Throw all Command initialization and {@link JController} binding for this
-	 * {@link SuperSubsystem} into this method.
+	 * Set the {@link Intake}'s main {@link #intake motor} to a specific speed, for
+	 * the given {@link ControlMode}.
+	 * 
+	 * @param mode  The mode at which to set the {@link HyperTalon}
+	 * @param speed The speed at which to set the {@link HyperTalon}
 	 */
-	private void configureButtonBindings() {
-		Runnable ballOut = () -> intake.set(ControlMode.Current, 40); // Ball Out
-		Runnable ballIn = () -> intake.set(ControlMode.Current, -40); // Ball In
-		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor
+	public void setMotor(ControlMode mode, double speed) {
+		intake.set(mode, speed);
+	}
 
-		if (joystick.getName().equals("Wireless Controller")) {
-			joystick.get("L1").whenPressed(ballOut, this).whenReleased(stopIntake, this);
-			joystick.get("R1").whenPressed(ballIn, this).whenReleased(stopIntake, this);
-		} else if (joystick.getName().equals("Generic   USB  Joystick")
-				|| joystick.getName().toLowerCase().contains("xbox")) {
-			joystick.get("LBumper").whenPressed(ballOut, this).whenReleased(stopIntake, this);
-			joystick.get("RBumper").whenPressed(ballIn, this).whenReleased(stopIntake, this);
-		}
+	/**
+	 * Stops the main {@link #intake} motor dead in its tracks.
+	 */
+	public void stopMotor() {
+		intake.stopMotor();
 	}
 }
