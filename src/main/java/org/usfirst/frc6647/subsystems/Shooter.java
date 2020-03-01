@@ -11,7 +11,9 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 
+import org.usfirst.frc6647.robot.Constants;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperServo;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSolenoid;
@@ -20,8 +22,11 @@ import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid, SuperSparkMax {
 	private Servo hood;
@@ -32,6 +37,11 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 	private CANEncoder shooterEncoder;
 
 	private double speed, ty, distance;
+
+	private ShuffleboardTab tab = Shuffleboard.getTab("Robot");
+	private ShuffleboardLayout layout;
+
+	private double setPoint;
 
 	/**
 	 * Creates a new {@link Shooter}.
@@ -49,20 +59,35 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 		shooter = getSpark("shooter");
 		shooterPID = getSparkPID("shooter");
 		shooterEncoder = getSparkEncoder("shooter");
+		shooter.setIdleMode(IdleMode.kCoast);
+
+		layout = tab.getLayout("Shooter", BuiltInLayouts.kList);
 	}
 
 	@Override
 	public void periodic() {
-		Shuffleboard.getTab("Robot").add("Shooter Neo-RPM", shooterEncoder.getVelocity())
-				.withWidget(BuiltInWidgets.kGraph);
+		outputToSmartDashboard();
 	}
 
 	public void setSpeed() {
-		shooterPID.setReference(calculateSpeed(), ControlType.kVelocity);
+		setPoint=calculateSpeed();
+		shooterPID.setReference(setPoint, ControlType.kVelocity);
 	}
 
 	public void stop() {
 		shooter.stopMotor();
+	}
+
+	public double getSetpoint() {
+		return setPoint;
+	}
+
+	private double getError() {
+		return shooterEncoder.getVelocity() - getSetpoint();
+	}
+
+	public boolean isOnTarget() {
+		return Math.abs(getError())<Constants.shooter.onTargetTolerance;
 	}
 
 	public double calculateSpeed() {
@@ -79,5 +104,13 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 
 		}
 		return speed;
+	}
+
+	public void outputToSmartDashboard() {
+		layout.add("shooter_RPM", shooterEncoder.getVelocity()).withWidget(BuiltInWidgets.kGraph);
+		layout.add("hood_Angle", hood.getAngle());
+		layout.add("hood_Break", stop.get()).withWidget(BuiltInWidgets.kBooleanBox);
+		layout.add("target_distance", distance);
+		layout.add("shooter_on_target", isOnTarget()).withWidget(BuiltInWidgets.kBooleanBox);
 	}
 }

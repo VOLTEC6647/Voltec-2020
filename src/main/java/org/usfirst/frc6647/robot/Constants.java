@@ -21,9 +21,14 @@ public final class Constants {
     public class shooter{
         public static final int id = 3;
         public static final double kP = 0, kD = 0, kF = 0;
+        public static final float onTargetTolerance = 30.0f;
     }
     public class turret{
         public static final int id = 4;
         public static final double kP = 0.5;
+        public static final double rotationsPerTick = 0;
+        public static final float fowardLimit = 300;
+        public static final float reverseLimit = -300;
+        public static final float onTargetTolerance = 0.01f; 
     }
 }
