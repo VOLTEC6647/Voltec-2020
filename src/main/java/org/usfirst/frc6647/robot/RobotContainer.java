@@ -22,7 +22,6 @@ public class RobotContainer extends LoopContainer {
 	private final Chassis chassis;
 	/** The {@link Robot}'s main {@link Intake} instance. */
 	private final Intake intake;
-
 	/**
 	 * Constructor for the main 'Container' class for the {@link Robot}, which
 	 * contains all of the {@link Robot}'s {@link Loop loops}, {@link SuperSubsystem

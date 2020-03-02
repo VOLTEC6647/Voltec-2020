@@ -70,6 +70,7 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 	}
 
 	public void setSpeed() {
+
 		setPoint=calculateSpeed();
 		shooterPID.setReference(setPoint, ControlType.kVelocity);
 	}

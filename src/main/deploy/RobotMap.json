@@ -129,5 +129,56 @@
 				"initialValue": false
 			}
 		]
+	},
+	"indexer": {
+		"sparks": [
+			{
+				"name": "indexerL",
+				"port": 5,
+				"idleMode":"Coast",
+				"type": "Brushed",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"d": 40
+					}
+				}
+			},
+			{
+				"name": "indexerR",
+				"port": 4,
+				"idleMode":"Coast",
+				"type": "Brushed",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"d": 40
+					}
+				}
+			},{
+				"name": "pulleyL",
+				"port": 6,
+				"idleMode":"brake",
+				"type": "Brushed",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"d": 40
+					}
+				}
+			},
+			{
+				"name": "pulleyR",
+				"port": 7,
+				"idleMode":"Brake",
+				"type": "Brushed",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"d": 40
+					}
+				}
+			}
+		]
 	}
 }
