@@ -7,6 +7,7 @@ import java.util.Random;
 import com.ctre.phoenix.music.Orchestra;
 
 import org.usfirst.frc6647.robot.Robot;
+import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -33,15 +34,12 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	/** {@link HyperAHRS} instance of the Robot's NavX. */
 	private HyperAHRS navX;
 
-	/** {@link Orchestra} object instance, for playing MIDI files. */
+	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
 
-	/** Stores last set limiter value. */
-	private double lastLimiter = Double.NaN;
-
 	/**
-	 * A lambda of every {@link SuperSubsystem Subsystem} must be provided to the
-	 * {@link Robot} via the {@link LooperRobot#registerSubsystems} method.
+	 * Should only need to create a single of instance of {@link Chassis this
+	 * class}; inside the {@link RobotContainer}.
 	 */
 	public Chassis() {
 		super("chassis");
@@ -61,10 +59,21 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 		navX = getAHRS("navX");
 
-		orchestra = new Orchestra(List.of(getFalcon("frontLeft"), getFalcon("backLeft"), getFalcon("frontRight"),
-				getFalcon("backRight")));
+		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
 	}
 
+	@Override
+	public void periodic() {
+		// Debug data.
+		SmartDashboard.putNumber("heading", navX.getHeading());
+		SmartDashboard.putNumber("yaw", navX.getHeading());
+		SmartDashboard.putNumber("rate", navX.getRate());
+	}
+
+	/**
+	 * Picks a random song from the 'deploy' directory, and loads it into the
+	 * {@link #orchestra} instance.
+	 */
 	public void prepareSong() {
 		var songs = new File(Filesystem.getDeployDirectory() + "/MIDI/").listFiles();
 		var song = songs[new Random().nextInt(songs.length)].toString();
@@ -73,6 +82,9 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		orchestra.loadMusic(song);
 	}
 
+	/**
+	 * Plays/pauses currently loaded song.
+	 */
 	public void toggleSong() {
 		if (!orchestra.isPlaying())
 			orchestra.play();
@@ -80,15 +92,14 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 			orchestra.pause();
 	}
 
-	public void setTurbo(boolean turbo, double speed) {
-		if (turbo) {
-			lastLimiter = frontLeft.getLimiter();
-			frontLeft.setLimiter(speed);
-			frontRight.setLimiter(speed);
-		} else {
-			frontLeft.setLimiter(lastLimiter);
-			frontRight.setLimiter(lastLimiter);
-		}
+	/**
+	 * Sets the {@link HyperFalcon motors}' limiter value to the given amount.
+	 * 
+	 * @param limiter The value at which to set the limiter
+	 */
+	public void setLimiter(double limiter) {
+		frontLeft.setLimiter(limiter);
+		frontRight.setLimiter(limiter);
 	}
 
 	/**
@@ -107,7 +118,7 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 
 	@Override
 	public void registerLoops(ILooper looper) {
-		looper.register(new Loop() {
+		looper.register(new Loop() { // Drive loop
 			@Override
 			public void onFirstStart(double timestamp) {
 				// Reset NavX only on first start; zero its yaw afterwards.
@@ -126,11 +137,6 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 
 			@Override
 			public void onLoop(double timestamp) {
-				// Debug data.
-				SmartDashboard.putNumber("heading", navX.getHeading());
-				SmartDashboard.putNumber("yaw", navX.getHeading());
-				SmartDashboard.putNumber("rate", navX.getRate());
-
 				if (orchestra.isPlaying()) // Prevents the robot from moving whilst playing a MIDI file.
 					return;
 
