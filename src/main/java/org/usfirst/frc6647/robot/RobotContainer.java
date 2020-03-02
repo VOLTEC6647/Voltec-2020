@@ -1,9 +1,9 @@
 package org.usfirst.frc6647.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-
 import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.frc6647.subsystems.Intake;
+import org.usfirst.frc6647.subsystems.Shooter;
+import org.usfirst.frc6647.subsystems.Turret;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopContainer;
 import org.usfirst.lib6647.oi.JController;
@@ -22,6 +22,8 @@ public class RobotContainer extends LoopContainer {
 	private final Chassis chassis;
 	/** The {@link Robot}'s main {@link Intake} instance. */
 	private final Intake intake;
+	private final Shooter shooter;
+	private final Turret turret;
 	/**
 	 * Constructor for the main 'Container' class for the {@link Robot}, which
 	 * contains all of the {@link Robot}'s {@link Loop loops}, {@link SuperSubsystem
@@ -34,6 +36,8 @@ public class RobotContainer extends LoopContainer {
 		// Initialize every Subsystem.
 		chassis = new Chassis();
 		intake = new Intake();
+		shooter = new Shooter();
+		turret = new Turret();
 
 		// Register each initialized Subsystem.
 		registerSubsystems(chassis, intake);
@@ -77,13 +81,13 @@ public class RobotContainer extends LoopContainer {
 		Runnable prepareSong = () -> chassis.prepareSong(); // Prepare a song to play.
 		Runnable toggleSong = () -> chassis.toggleSong(); // Play/pause current song.
 
-		Runnable enableTurbo = () -> chassis.setTurbo(true, 1); // Zu schnell!
-		Runnable disableTurbo = () -> chassis.setTurbo(false, Double.NaN); // Zu langsam...
+		Runnable enableTurbo = () -> chassis.setLimiter(1); // Zu schnell!
+		Runnable disableTurbo = () -> chassis.setLimiter(0.5); // Zu langsam...
 		// ...
 
 		// Intake commands.
-		Runnable ballOut = () -> intake.setMotor(ControlMode.Current, 40); // Ball out.
-		Runnable ballIn = () -> intake.setMotor(ControlMode.Current, -40); // Ball in.
+		Runnable ballOut = () -> intake.setMotorVoltage(40); // Ball out.
+		Runnable ballIn = () -> intake.setMotorVoltage(-40); // Ball in.
 		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor.
 		// ...
 
