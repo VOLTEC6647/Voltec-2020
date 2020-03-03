@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
 import org.usfirst.frc6647.robot.Constants;

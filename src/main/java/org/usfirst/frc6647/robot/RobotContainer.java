@@ -13,7 +13,10 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 /**
  * A 'Container' class for the {@link Robot}, which contains all of the
@@ -47,7 +50,7 @@ public class RobotContainer extends LoopContainer {
 		chassis = new Chassis();
 		intake = new Intake();
 		shooter = new Shooter();
-		turret = Turret.getInstance();
+		turret = new Turret();
 		indexer = new Indexer();
 		elevator = new Elevator();
 
@@ -90,34 +93,44 @@ public class RobotContainer extends LoopContainer {
 		var driver1 = getJoystick("driver1");
 
 		// Chassis commands.
-		Runnable prepareSong = () -> chassis.prepareSong(); // Prepare a song to play.
-		Runnable toggleSong = () -> chassis.toggleSong(); // Play/pause current song.
-
-		Runnable toggleTurbo = () -> chassis.toggleReduction(); // Zu schnell! Zu langsam...!
+		StartEndCommand toggleTurbo = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
 		// ...
 
 		// Intake commands.
-		Runnable ballOut = () -> { // Ball out.
+		Runnable ballStop = () -> { // Stop intake, indexer, and pulley motors.
+			intake.stopMotor();
+			indexer.stopIndexer();
+			indexer.stopPulley();
+		};
+
+		StartEndCommand ballOut = new StartEndCommand(() -> { // Ball out.
 			intake.setMotorVoltage(40);
 			indexer.setIndexerVoltage(40, 40);
 			indexer.setPulleyVoltage(40, 40);
-		};
-		Runnable ballIn = () -> { // Ball in.
+		}, ballStop, intake, indexer);
+		StartEndCommand ballIn = new StartEndCommand(() -> { // Ball in.
 			intake.setMotorVoltage(-40);
 			indexer.setIndexerVoltage(-40, -40);
 			indexer.setPulleyVoltage(-40, -40);
-		};
-		Runnable stopIntake = () -> intake.stopMotor(); // Stop intake motor.
+		}, ballStop, intake, indexer);
+		// ...
+
+		// Turret commands.
+		FunctionalCommand zeroTurret = new FunctionalCommand(() -> turret.reset(Rotation2d.fromDegrees(0)),
+				() -> turret.setMotor(-0.4), interrupted -> turret.reset(Rotation2d.fromDegrees(0)),
+				turret::getReverseLimitSwitch, turret);
 		// ...
 
 		try {
-			driver1.get("Options", "Start").whenPressed(prepareSong);
+			driver1.get("Options", "Start").whenPressed(chassis::prepareSong);
 			driver1.get("L2", "LTrigger").and(driver1.get("R2", "RTrigger")).and(driver1.get("Share", "Select"))
-					.whenActive(toggleSong);
-			driver1.get("L2", "LTrigger").whenPressed(toggleTurbo).whenReleased(toggleTurbo);
+					.whenActive(chassis::toggleSong);
+			driver1.get("L2", "LTrigger").whileHeld(toggleTurbo);
 
-			driver1.get("L1", "LBumper").whenPressed(ballOut, intake).whenReleased(stopIntake, intake);
-			driver1.get("R1", "RBumper").whenPressed(ballIn, intake).whenReleased(stopIntake, intake);
+			driver1.get("L1", "LBumper").whileHeld(ballOut);
+			driver1.get("R1", "RBumper").whileHeld(ballIn);
+
+			driver1.get("dPadLeft").whenPressed(zeroTurret);
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);

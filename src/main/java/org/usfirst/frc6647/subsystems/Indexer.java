@@ -4,6 +4,7 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
+import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
@@ -78,6 +79,15 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 	}
 
 	/**
+	 * Stops the {@link Indexer}'s {@link #indexerLeft left} and
+	 * {@link #indexerRight right} motors dead in their tracks.
+	 */
+	public void stopIndexer() {
+		indexerLeft.stopMotor();
+		indexerRight.stopMotor();
+	}
+
+	/**
 	 * Method to set voltage of both {@link Indexer pulley} motors.
 	 * 
 	 * @param frontVoltage The voltage at which to set the {@link #pulleyFront front
@@ -88,5 +98,14 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 	public void setPulleyVoltage(double frontVoltage, double backVoltage) {
 		pulleyFrontPID.setReference(frontVoltage, ControlType.kCurrent);
 		pulleyBackPID.setReference(backVoltage, ControlType.kCurrent);
+	}
+
+	/**
+	 * Stops the {@link Indexer}'s {@link #pulleyFront front} and {@link #pulleyBack
+	 * back} pulley motors dead in their tracks.
+	 */
+	public void stopPulley() {
+		pulleyFront.stopMotor();
+		pulleyBack.stopMotor();
 	}
 }

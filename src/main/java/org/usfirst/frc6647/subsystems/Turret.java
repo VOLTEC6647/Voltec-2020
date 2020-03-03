@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
 import org.usfirst.frc6647.robot.Constants;
+import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -52,13 +53,12 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 	private double setpoint;
 	/** Whether or not the {@link Turret} is currently aiming. */
 	private boolean aiming = false;
-	
-	private static Turret instance= new Turret(); 
+
 	/**
 	 * Should only need to create a single of instance of {@link Turret this class};
 	 * inside the {@link RobotContainer}.
 	 */
-	private Turret() {
+	public Turret() {
 		super("turret");
 
 		// All SuperComponents must be initialized like this. The 'robotMap' Object is
@@ -76,11 +76,6 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 		limitForward = getDigitalInput("limitForward");
 
 		layout = Shuffleboard.getTab("Robot").getLayout("Turret", BuiltInLayouts.kList);
-	}
-	public static Turret getInstance(){
-		if(instance==null)
-			instance = new Turret();
-		return instance;
 	}
 
 	@Override
