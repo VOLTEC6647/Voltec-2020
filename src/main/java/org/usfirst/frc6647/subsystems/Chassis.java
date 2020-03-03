@@ -14,28 +14,41 @@ import org.usfirst.lib6647.loops.LoopType;
 import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperAHRS;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperFalcon;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperAHRS;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperFalcon;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 /**
- * Simple Chassis/Drive {@link SuperSubsystem} implementation, with arcade
- * drive.
+ * Simple {@link Chassis Chassis/Drive} {@link SuperSubsystem} implementation,
+ * with arcade drive.
  */
-public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
-	/** {@link HyperFalcon HyperFalcons} used by this {@link SuperSubsystem}. */
-	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
+public class Chassis extends SuperSubsystem implements SuperAHRS, SuperDoubleSolenoid, SuperFalcon {
 	/** {@link JController} instance used by the Robot. */
 	private JController joystick;
 	/** {@link HyperAHRS} instance of the Robot's NavX. */
 	private HyperAHRS navX;
+	/** {@link HyperFalcon HyperFalcons} used by this {@link SuperSubsystem}. */
+	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
+	/** {@link HyperSolenoid HyperSolenoids} used by this {@link SuperSubsystem}. */
+	private HyperDoubleSolenoid leftReduction, rightReduction;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
+
+	/**
+	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
+	 */
+	private ShuffleboardLayout layout;
 
 	/**
 	 * Should only need to create a single of instance of {@link Chassis this
@@ -48,26 +61,37 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 		// inherited from the SuperSubsystem class, while the second argument is simply
 		// this Subsystem's name.
 		initAHRS(robotMap, getName());
+		initDoubleSolenoids(robotMap, getName());
 		initFalcons(robotMap, getName());
 
 		// Additional initialiation & configuration.
+		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
+		navX = getAHRS("navX");
+
 		frontLeft = getFalcon("frontLeft");
 		frontRight = getFalcon("frontRight");
 		backLeft = getFalcon("backLeft");
 		backRight = getFalcon("backRight");
 
-		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
-		navX = getAHRS("navX");
+		leftReduction = getDoubleSolenoid("leftReduction");
+		rightReduction = getDoubleSolenoid("rightReduction");
 
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
+
+		layout = Shuffleboard.getTab("Robot").getLayout("Chassis", BuiltInLayouts.kList);
 	}
 
 	@Override
 	public void periodic() {
 		// Debug data.
-		SmartDashboard.putNumber("heading", navX.getHeading());
-		SmartDashboard.putNumber("yaw", navX.getHeading());
-		SmartDashboard.putNumber("rate", navX.getRate());
+		layout.add("frontLeftMotor", frontLeft).withWidget(BuiltInWidgets.kSpeedController);
+		layout.add("frontRightMotor", frontRight).withWidget(BuiltInWidgets.kSpeedController);
+		layout.add("backLeftMotor", backLeft).withWidget(BuiltInWidgets.kSpeedController);
+		layout.add("backRightMotor", backRight).withWidget(BuiltInWidgets.kSpeedController);
+
+		layout.add("navX", navX).withWidget(BuiltInWidgets.kGyro);
+		layout.add("navXYaw", navX.getYaw());
+		layout.add("navXHeading", navX.getHeading());
 	}
 
 	/**
@@ -93,13 +117,11 @@ public class Chassis extends SuperSubsystem implements SuperAHRS, SuperFalcon {
 	}
 
 	/**
-	 * Sets the {@link HyperFalcon motors}' limiter value to the given amount.
-	 * 
-	 * @param limiter The value at which to set the limiter
+	 * Toggle {@link HyperFalcon} reductions, on both sides.
 	 */
-	public void setLimiter(double limiter) {
-		frontLeft.setLimiter(limiter);
-		frontRight.setLimiter(limiter);
+	public void toggleReduction() {
+		leftReduction.toggle();
+		rightReduction.toggle();
 	}
 
 	/**

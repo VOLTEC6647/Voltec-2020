@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 /**
  * {@link SuperSubsystem} implementation of a {@link Turret}, using a Limelight
- * camera to Auto-aim.
+ * camera to auto-aim.
  */
 public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSparkMax {
 	/** {@link CANSparkMax} instance of the {@link Turret} */
@@ -210,7 +210,7 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 
 			@Override
 			public void onLoop(double timestamp) {
-				if (!aiming)
+				if (!aiming) // Checks whether or not the Turret should be auto-aiming
 					return;
 
 				synchronized (Turret.this) {

@@ -1,5 +1,25 @@
 {
 	"chassis": {
+		"ahrs": [
+			{
+				"name": "navX",
+				"port": "MXP",
+				"resetOnStart": false,
+				"inverted": false
+			}
+		],
+		"doubleSolenoids": [
+			{
+				"name": "leftReduction",
+				"forwardChannel": 0,
+				"reverseChannel": 0
+			},
+			{
+				"name": "rightReduction",
+				"forwardChannel": 0,
+				"reverseChannel": 0
+			}
+		],
 		"falcons": [
 			{
 				"name": "frontLeft",
@@ -57,17 +77,16 @@
 					}
 				}
 			}
-		],
-		"ahrs": [
-			{
-				"name": "navX",
-				"port": "MXP",
-				"resetOnStart": false,
-				"inverted": false
-			}
 		]
 	},
 	"intake": {
+		"doubleSolenoid": [
+			{
+				"name": "intakePiston",
+				"forwardChannel": 0,
+				"reverseChannel": 0
+			}
+		],
 		"sparks": [
 			{
 				"name": "intake",
@@ -131,9 +150,10 @@
 	"indexer": {
 		"sparks": [
 			{
-				"name": "indexerL",
-				"port": 5,
-				"idleMode":"Coast",
+				"name": "indexerLeft",
+				"port": 0,
+				"inverted": true,
+				"idleMode": "Coast",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {
@@ -143,20 +163,9 @@
 				}
 			},
 			{
-				"name": "indexerR",
-				"port": 4,
-				"idleMode":"Coast",
-				"type": "Brushed",
-				"pid": {
-					"slot0": {
-						"p": 0.5,
-						"d": 40
-					}
-				}
-			},{
-				"name": "pulleyL",
-				"port": 6,
-				"idleMode":"brake",
+				"name": "indexerRight",
+				"port": 0,
+				"idleMode": "Coast",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {
@@ -166,16 +175,45 @@
 				}
 			},
 			{
-				"name": "pulleyR",
-				"port": 7,
-				"idleMode":"Brake",
-				"type": "Brushed",
+				"name": "pulleyFront",
+				"port": 0,
+				"inverted": true,
+				"idleMode": "Brake",
+				"type": "Brushless",
 				"pid": {
 					"slot0": {
 						"p": 0.5,
 						"d": 40
 					}
 				}
+			},
+			{
+				"name": "pulleyBack",
+				"port": 0,
+				"idleMode": "Brake",
+				"type": "Brushless",
+				"pid": {
+					"slot0": {
+						"p": 0.5,
+						"d": 40
+					}
+				}
+			}
+		]
+	},
+	"elevator": {
+		"sparks": [
+			{
+				"name": "elevator",
+				"port": 0,
+				"idleMode": "Brake",
+				"type": "Brushless"
+			},
+			{
+				"name": "elevatorWheel",
+				"port": 0,
+				"idleMode": "Brake",
+				"type": "Brushless"
 			}
 		]
 	}

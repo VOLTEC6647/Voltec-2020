@@ -145,6 +145,7 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 
 		var speed = 0.0;
 
+		// TODO Actually modify the speed value.
 		if (distance < 3) {
 
 		} else if (distance < 6) {
