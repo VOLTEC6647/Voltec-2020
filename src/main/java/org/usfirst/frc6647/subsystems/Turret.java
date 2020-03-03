@@ -52,12 +52,13 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 	private double setpoint;
 	/** Whether or not the {@link Turret} is currently aiming. */
 	private boolean aiming = false;
-
+	
+	private static Turret instance= new Turret(); 
 	/**
 	 * Should only need to create a single of instance of {@link Turret this class};
 	 * inside the {@link RobotContainer}.
 	 */
-	public Turret() {
+	private Turret() {
 		super("turret");
 
 		// All SuperComponents must be initialized like this. The 'robotMap' Object is
@@ -75,6 +76,11 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 		limitForward = getDigitalInput("limitForward");
 
 		layout = Shuffleboard.getTab("Robot").getLayout("Turret", BuiltInLayouts.kList);
+	}
+	public static Turret getInstance(){
+		if(instance==null)
+			instance = new Turret();
+		return instance;
 	}
 
 	@Override

@@ -7,6 +7,7 @@
 
 package org.usfirst.frc6647.robot;
 
+import org.usfirst.frc6647.commands.turretZeroing;
 import org.usfirst.lib6647.json.JSONRobot;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -82,6 +83,7 @@ public class Robot extends JSONRobot {
 		container.getLooper(LoopType.TELEOP).start();
 		container.getLooper(LoopType.AUTO).stop();
 		container.getLooper(LoopType.DISABLED).stop();
+		new turretZeroing();
 	}
 
 	@Override

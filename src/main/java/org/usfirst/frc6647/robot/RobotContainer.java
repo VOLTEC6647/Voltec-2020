@@ -47,7 +47,7 @@ public class RobotContainer extends LoopContainer {
 		chassis = new Chassis();
 		intake = new Intake();
 		shooter = new Shooter();
-		turret = new Turret();
+		turret = Turret.getInstance();
 		indexer = new Indexer();
 		elevator = new Elevator();
 
