@@ -1,13 +1,5 @@
 {
 	"chassis": {
-		"ahrs": [
-			{
-				"name": "navX",
-				"port": "MXP",
-				"resetOnStart": false,
-				"inverted": false
-			}
-		],
 		"doubleSolenoids": [
 			{
 				"name": "leftReduction",
@@ -24,7 +16,7 @@
 			{
 				"name": "frontLeft",
 				"port": 1,
-				"limiter": 0.5,
+				"limiter": 1,
 				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
@@ -38,7 +30,7 @@
 			{
 				"name": "frontRight",
 				"port": 2,
-				"limiter": 0.5,
+				"limiter": 1,
 				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
@@ -52,7 +44,7 @@
 			{
 				"name": "backLeft",
 				"port": 3,
-				"limiter": 0.5,
+				"limiter": 1,
 				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
@@ -66,7 +58,7 @@
 			{
 				"name": "backRight",
 				"port": 4,
-				"limiter": 0.5,
+				"limiter": 1,
 				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
@@ -76,6 +68,16 @@
 						"sensorPos": 0
 					}
 				}
+			}
+		]
+	},
+	"gyro": {
+		"ahrs": [
+			{
+				"name": "navX",
+				"port": "MXP",
+				"resetOnStart": false,
+				"inverted": false
 			}
 		]
 	},
@@ -90,7 +92,7 @@
 		"sparks": [
 			{
 				"name": "intake",
-				"port": 0,
+				"port": 9,
 				"type": "Brushed",
 				"idleMode": "Coast",
 				"pid": {
@@ -108,7 +110,7 @@
 		"sparks": [
 			{
 				"name": "turret",
-				"port": 0,
+				"port": 3,
 				"type": "Brushless",
 				"idleMode": "Brake",
 				"softLimitForward": 300,
@@ -127,7 +129,7 @@
 		"sparks": [
 			{
 				"name": "shooter",
-				"port": 0,
+				"port": 4,
 				"type": "Brushless",
 				"idleMode": "Coast"
 			}
@@ -136,7 +138,7 @@
 			{
 				"name": "hood",
 				"channel": 0,
-				"initialValue": 0
+				"initialValue": 20
 			}
 		],
 		"solenoids": [
@@ -151,7 +153,7 @@
 		"sparks": [
 			{
 				"name": "indexerLeft",
-				"port": 0,
+				"port": 7,
 				"inverted": true,
 				"idleMode": "Coast",
 				"type": "Brushed",
@@ -164,7 +166,7 @@
 			},
 			{
 				"name": "indexerRight",
-				"port": 0,
+				"port": 8,
 				"idleMode": "Coast",
 				"type": "Brushed",
 				"pid": {
@@ -175,9 +177,8 @@
 				}
 			},
 			{
-				"name": "pulleyFront",
-				"port": 0,
-				"inverted": true,
+				"name": "pulleyBack",
+				"port": 1,
 				"idleMode": "Brake",
 				"type": "Brushless",
 				"pid": {
@@ -188,8 +189,9 @@
 				}
 			},
 			{
-				"name": "pulleyBack",
-				"port": 0,
+				"name": "pulleyFront",
+				"port": 2,
+				"inverted": true,
 				"idleMode": "Brake",
 				"type": "Brushless",
 				"pid": {
@@ -205,13 +207,13 @@
 		"sparks": [
 			{
 				"name": "elevator",
-				"port": 0,
+				"port": 5,
 				"idleMode": "Brake",
 				"type": "Brushless"
 			},
 			{
 				"name": "elevatorWheel",
-				"port": 0,
+				"port": 6,
 				"idleMode": "Brake",
 				"type": "Brushless"
 			}

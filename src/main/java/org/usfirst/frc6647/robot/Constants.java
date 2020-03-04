@@ -18,6 +18,10 @@ package org.usfirst.frc6647.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+	public class GyroConstants {
+		public static final double collisionThresholdDeltaG = 0.5f;
+	}
+
 	public class ShooterConstants {
 		public static final float tolerance = 30.0f;
 	}
