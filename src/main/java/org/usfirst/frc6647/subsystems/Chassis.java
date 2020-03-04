@@ -124,7 +124,7 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	 * @param forward  The drive's forward speed
 	 * @param rotation The drive's rotation speed
 	 */
-	private void arcadeDrive(double forward, double rotation) {
+	public void arcadeDrive(double forward, double rotation) {
 		frontLeft.setWithRamp(forward, -rotation);
 		backLeft.setWithRamp(forward, -rotation);
 
