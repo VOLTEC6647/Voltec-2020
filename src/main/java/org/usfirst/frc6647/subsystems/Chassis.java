@@ -16,9 +16,11 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperFalcon;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperSolenoid;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperCompressor;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperFalcon;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -30,13 +32,15 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
  * Simple {@link Chassis Chassis/Drive} {@link SuperSubsystem} implementation,
  * with arcade drive.
  */
-public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, SuperFalcon {
-	/** {@link JController} instance used by the Robot. */
+public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDoubleSolenoid, SuperFalcon {
+	/** {@link JController} instance used by the {@link Robot}. */
 	private JController joystick;
+	/** {@link Compressor} instance used by the {@link Robot}. */
+	private Compressor compressor;
 	/** {@link HyperFalcon HyperFalcons} used by this {@link SuperSubsystem}. */
 	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
-	/** {@link HyperSolenoid HyperSolenoids} used by this {@link SuperSubsystem}. */
-	private HyperDoubleSolenoid leftReduction, rightReduction;
+	/** {@link HyperSolenoid} used by this {@link SuperSubsystem}. */
+	private HyperDoubleSolenoid reduction;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
@@ -62,13 +66,14 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		// Additional initialiation & configuration.
 		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 
+		compressor = getCompressor("compressor");
+
 		frontLeft = getFalcon("frontLeft");
 		frontRight = getFalcon("frontRight");
 		backLeft = getFalcon("backLeft");
 		backRight = getFalcon("backRight");
 
-		leftReduction = getDoubleSolenoid("leftReduction");
-		rightReduction = getDoubleSolenoid("rightReduction");
+		reduction = getDoubleSolenoid("reduction");
 
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
 
@@ -110,8 +115,7 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 * Toggle {@link HyperFalcon} reductions, on both sides.
 	 */
 	public void toggleReduction() {
-		leftReduction.toggle();
-		rightReduction.toggle();
+		reduction.toggle();
 	}
 
 	/**
@@ -138,6 +142,7 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 			@Override
 			public void onStart(double timestamp) {
 				synchronized (Chassis.this) {
+					compressor.start();
 					System.out.println("Started arcade drive at: " + timestamp + "!");
 				}
 			}
@@ -154,6 +159,7 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 
 			@Override
 			public void onStop(double timestamp) {
+				compressor.stop();
 				arcadeDrive(0, 0);
 				System.out.println("Stopped arcade drive at: " + timestamp + ".");
 			}

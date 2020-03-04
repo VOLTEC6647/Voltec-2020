@@ -10,9 +10,10 @@ import com.revrobotics.ControlType;
 import org.usfirst.frc6647.robot.Constants;
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperSolenoid;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperServo;
-import org.usfirst.lib6647.subsystem.supercomponents.SuperSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -25,14 +26,14 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 /**
  * {@link SuperSubsystem} implementation of a {@link Shooter}.
  */
-public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid, SuperSparkMax {
+public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, SuperServo, SuperSparkMax {
 	/** {@link Servo} that controls the {@link Shooter}'s {@link #hood}. */
 	private Servo hood;
 	/**
-	 * {@link HyperSolenoid} to stop the {@link Shooter}'s {@link CANSparkMax
+	 * {@link HyperDoubleSolenoid} to stop the {@link Shooter}'s {@link CANSparkMax
 	 * motor}.
 	 */
-	private HyperSolenoid stop;
+	private HyperDoubleSolenoid stop;
 
 	/**
 	 * {@link CANPIDController} instance of the {@link Shooter}'s {@link CANSparkMax
@@ -67,13 +68,13 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 		// All SuperComponents must be initialized like this. The 'robotMap' Object is
 		// inherited from the SuperSubsystem class, while the second argument is simply
 		// this Subsystem's name.
+		initDoubleSolenoids(robotMap, getName());
 		initServos(robotMap, getName());
-		initSolenoids(robotMap, getName());
 		initSparks(robotMap, getName());
 
 		// Additional initialiation & configuration.
 		hood = getServo("hood");
-		stop = getSolenoid("stop");
+		stop = getDoubleSolenoid("stop");
 
 		shooterPID = getSparkPID("shooter");
 		shooterEncoder = getSparkEncoder("shooter");
@@ -86,7 +87,6 @@ public class Shooter extends SuperSubsystem implements SuperServo, SuperSolenoid
 		// Debug data.
 		layout.add("shooter_RPM", shooterEncoder.getVelocity()).withWidget(BuiltInWidgets.kGraph);
 		layout.add("hood_angle", hood.getAngle());
-		layout.add("hood_brake", stop.get()).withWidget(BuiltInWidgets.kBooleanBox);
 		layout.add("shooter_on_target", onTarget()).withWidget(BuiltInWidgets.kBooleanBox);
 	}
 

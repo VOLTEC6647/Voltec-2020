@@ -1,15 +1,16 @@
 {
 	"chassis": {
+		"compressors": [
+			{
+				"name": "compressor",
+				"module": 0
+			}
+		],
 		"doubleSolenoids": [
 			{
-				"name": "leftReduction",
+				"name": "reduction",
 				"forwardChannel": 0,
-				"reverseChannel": 0
-			},
-			{
-				"name": "rightReduction",
-				"forwardChannel": 0,
-				"reverseChannel": 0
+				"reverseChannel": 1
 			}
 		],
 		"falcons": [
@@ -85,8 +86,8 @@
 		"doubleSolenoid": [
 			{
 				"name": "intakePiston",
-				"forwardChannel": 0,
-				"reverseChannel": 0
+				"forwardChannel": 5,
+				"reverseChannel": 4
 			}
 		],
 		"sparks": [
@@ -126,6 +127,13 @@
 		]
 	},
 	"shooter": {
+		"doubleSolenoids": [
+			{
+				"name": "stop",
+				"forwardChannel": 3,
+				"reverseChannel": 2
+			}
+		],
 		"sparks": [
 			{
 				"name": "shooter",
@@ -139,13 +147,6 @@
 				"name": "hood",
 				"channel": 0,
 				"initialValue": 20
-			}
-		],
-		"solenoids": [
-			{
-				"name": "brake",
-				"channel": 0,
-				"initialValue": false
 			}
 		]
 	},

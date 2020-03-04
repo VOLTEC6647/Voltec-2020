@@ -107,6 +107,14 @@ public class RobotContainer extends LoopContainer {
 			indexer.stopPulley();
 		};
 
+		// Debug commands.
+		StartEndCommand intakeIn = new StartEndCommand(() -> intake.setMotorVoltage(-40), ballStop);
+		StartEndCommand intakeOut = new StartEndCommand(() -> intake.setMotorVoltage(40), ballStop);
+		StartEndCommand indexerIn = new StartEndCommand(() -> indexer.setIndexerVoltage(-40, -40), ballStop);
+		StartEndCommand indexerOut = new StartEndCommand(() -> indexer.setIndexerVoltage(40, 40), ballStop);
+		StartEndCommand pulleyIn = new StartEndCommand(() -> indexer.setPulleyVoltage(-40, -40), ballStop);
+		StartEndCommand pulleyOut = new StartEndCommand(() -> indexer.setPulleyVoltage(40, 40), ballStop);
+
 		StartEndCommand ballOut = new StartEndCommand(() -> { // Ball out.
 			intake.setMotorVoltage(40);
 			indexer.setIndexerVoltage(40, 40);
@@ -131,8 +139,16 @@ public class RobotContainer extends LoopContainer {
 					.whenActive(chassis::toggleSong);
 			driver1.get("L2", "LTrigger").whileHeld(toggleTurbo);
 
-			driver1.get("L1", "LBumper").whileHeld(ballOut);
-			driver1.get("R1", "RBumper").whileHeld(ballIn);
+			// driver1.get("L1", "LBumper").whileHeld(ballOut);
+			// driver1.get("R1", "RBumper").whileHeld(ballIn);
+
+			driver1.get("dPadDown").whileHeld(intakeOut);
+			driver1.get("dPadRight").whileHeld(indexerOut);
+			driver1.get("dPadUp").whileHeld(pulleyOut);
+
+			driver1.get("X").whileHeld(intakeIn);
+			driver1.get("Square").whileHeld(indexerIn);
+			driver1.get("Triangle").whileHeld(pulleyIn);
 
 			driver1.get("dPadLeft").whenPressed(zeroTurret);
 		} catch (NullPointerException e) {
