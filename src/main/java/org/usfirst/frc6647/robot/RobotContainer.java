@@ -5,6 +5,7 @@ import org.usfirst.frc6647.subsystems.Elevator;
 import org.usfirst.frc6647.subsystems.Gyro;
 import org.usfirst.frc6647.subsystems.Indexer;
 import org.usfirst.frc6647.subsystems.Intake;
+import org.usfirst.frc6647.subsystems.Limelight;
 import org.usfirst.frc6647.subsystems.Shooter;
 import org.usfirst.frc6647.subsystems.Turret;
 import org.usfirst.lib6647.loops.Loop;
@@ -40,6 +41,7 @@ public class RobotContainer extends LoopContainer {
 	/** The {@link Robot}'s main {@link Elevator} instance. */
 	private final Elevator elevator;
 
+	public final Limelight vision;
 	/**
 	 * Constructor for the main 'Container' class for the {@link Robot}, which
 	 * contains all of the {@link Robot}'s {@link Loop loops}, {@link SuperSubsystem
@@ -57,13 +59,15 @@ public class RobotContainer extends LoopContainer {
 		turret = new Turret();
 		indexer = new Indexer();
 		elevator = new Elevator();
-
+		vision = new Limelight();
 		// Register each initialized Subsystem.
 		registerSubsystems(chassis, gyro, intake, shooter, turret, indexer, elevator);
 
 		configureButtonBindings();
 	}
-
+	public Chassis getChassis(){
+		return chassis;
+	}
 	/**
 	 * Run any {@link JController} initialization here.
 	 */
@@ -88,7 +92,6 @@ public class RobotContainer extends LoopContainer {
 		// Register each instantiated JController object in the joysticks HashMap.
 		registerJoystick(driver1, "driver1");
 	}
-
 	/**
 	 * Throw all {@link Command} initialization and {@link JController} binding into
 	 * this method.

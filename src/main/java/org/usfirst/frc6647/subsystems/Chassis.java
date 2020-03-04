@@ -120,7 +120,7 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 * @param forward  The drive's forward speed
 	 * @param rotation The drive's rotation speed
 	 */
-	private void arcadeDrive(double forward, double rotation) {
+	public void arcadeDrive(double forward, double rotation) {
 		frontLeft.setWithRamp(forward, -rotation);
 		backLeft.setWithRamp(forward, -rotation);
 
