@@ -2,6 +2,7 @@ package org.usfirst.frc6647.robot;
 
 import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.frc6647.subsystems.Elevator;
+import org.usfirst.frc6647.subsystems.Gyro;
 import org.usfirst.frc6647.subsystems.Indexer;
 import org.usfirst.frc6647.subsystems.Intake;
 import org.usfirst.frc6647.subsystems.Shooter;
@@ -26,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 public class RobotContainer extends LoopContainer {
 	/** The {@link Robot}'s main {@link Chassis} instance. */
 	private final Chassis chassis;
+	/** The {@link Robot}'s main {@link Gyro} instance. */
+	private final Gyro gyro;
 	/** The {@link Robot}'s main {@link Intake} instance. */
 	private final Intake intake;
 	/** The {@link Robot}'s main {@link Shooter} instance. */
@@ -48,6 +51,7 @@ public class RobotContainer extends LoopContainer {
 
 		// Initialize every Subsystem.
 		chassis = new Chassis();
+		gyro = new Gyro();
 		intake = new Intake();
 		shooter = new Shooter();
 		turret = new Turret();
@@ -55,7 +59,7 @@ public class RobotContainer extends LoopContainer {
 		elevator = new Elevator();
 
 		// Register each initialized Subsystem.
-		registerSubsystems(chassis, intake, shooter, turret, indexer, elevator);
+		registerSubsystems(chassis, gyro, intake, shooter, turret, indexer, elevator);
 
 		configureButtonBindings();
 	}
