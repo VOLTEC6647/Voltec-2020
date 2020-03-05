@@ -8,9 +8,7 @@ import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 /**
  * {@link SuperSubsystem} implementation for our {@link Elevator}.
@@ -34,8 +32,6 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 		// Additional initialiation & configuration.
 		elevator = getSpark("elevator");
 		elevatorWheel = getSpark("elevatorWheel");
-
-		layout = Shuffleboard.getTab("Robot").getLayout("Elevator", BuiltInLayouts.kList);
 		// ...
 
 		outputToShuffleboard();

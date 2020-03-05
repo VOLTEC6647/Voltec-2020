@@ -18,6 +18,8 @@ public class Vision extends SuperSubsystem {
 		super("vision");
 
 		limelight = new LimelightCamera("limelight");
+
+		outputToShuffleboard();
 	}
 
 	@Override

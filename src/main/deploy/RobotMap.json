@@ -137,7 +137,7 @@
 				"name": "indexerLeft",
 				"port": 7,
 				"inverted": true,
-				"idleMode": "Coast",
+				"idleMode": "Brake",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {
@@ -149,7 +149,8 @@
 			{
 				"name": "indexerRight",
 				"port": 8,
-				"idleMode": "Coast",
+				"inverted": true,
+				"idleMode": "Brake",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {
