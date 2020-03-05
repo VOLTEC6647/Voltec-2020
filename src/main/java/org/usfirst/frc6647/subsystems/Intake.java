@@ -1,35 +1,25 @@
 package org.usfirst.frc6647.subsystems;
 
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 /**
  * Ball {@link Intake} {@link SuperSubsystem} implementation.
  */
 public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, SuperSparkMax {
-	/** Main {@link CANSparkMax} used by this {@link Intake}. */
-	private CANSparkMax intake;
-	/** {@link CANPIDController} instance of the main {@link #intake motor}. */
-	private CANPIDController intakePID;
-	/** {@link HyperDoubleSolenoid} used by this {@link SuperSubsystem}. */
+	/** Main {@link HyperSparkMax} used by this {@link Intake subsystem}. */
+	private HyperSparkMax intake;
+	/** {@link HyperDoubleSolenoid} used by this {@link Intake subsystem}. */
 	private HyperDoubleSolenoid intakePiston;
-
-	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
 
 	/**
 	 * Should only need to create a single of instance of {@link Intake this class};
@@ -46,17 +36,25 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 
 		// Additional initialiation & configuration.
 		intake = getSpark("intake");
-		intakePID = getSparkPID("intake");
 
 		intakePiston = getDoubleSolenoid("intakePiston");
+		// ...
 
-		layout = Shuffleboard.getTab("Robot").getLayout("Indexer", BuiltInLayouts.kList);
+		outputToShuffleboard();
 	}
 
 	@Override
-	public void periodic() {
-		layout.add("intakeMotor", intake).withWidget(BuiltInWidgets.kSpeedController);
-		layout.add("intakeVoltage", intake.getOutputCurrent()).withWidget(BuiltInWidgets.kGraph);
+	protected void outputToShuffleboard() {
+		try {
+			layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
+			layout.addNumber("intakeVoltage", intake::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
+		} catch (NullPointerException e) {
+			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
+					e.getLocalizedMessage());
+
+			System.out.println(error);
+			DriverStation.reportWarning(error, false);
+		}
 	}
 
 	/**
@@ -67,7 +65,7 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 	 *                {@link #intakePID PID Controller} to
 	 */
 	public void setMotorVoltage(double voltage) {
-		intakePID.setReference(voltage, ControlType.kCurrent);
+		intake.getPIDController().setReference(voltage, ControlType.kCurrent);
 	}
 
 	/**

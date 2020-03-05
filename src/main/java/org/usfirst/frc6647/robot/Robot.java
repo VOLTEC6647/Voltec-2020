@@ -50,6 +50,10 @@ public class Robot extends JSONRobot {
 			instance = this;
 
 		container = new RobotContainer();
+
+		container.initJoysticks();
+		container.initSubsystems();
+		container.configureButtonBindings();
 	}
 
 	@Override

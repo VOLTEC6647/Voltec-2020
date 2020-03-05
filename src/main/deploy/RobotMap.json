@@ -1,15 +1,16 @@
 {
 	"chassis": {
+		"compressors": [
+			{
+				"name": "compressor",
+				"module": 0
+			}
+		],
 		"doubleSolenoids": [
 			{
-				"name": "leftReduction",
+				"name": "reduction",
 				"forwardChannel": 0,
-				"reverseChannel": 0
-			},
-			{
-				"name": "rightReduction",
-				"forwardChannel": 0,
-				"reverseChannel": 0
+				"reverseChannel": 1
 			}
 		],
 		"falcons": [
@@ -17,7 +18,7 @@
 				"name": "frontLeft",
 				"port": 1,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -36,7 +37,7 @@
 				"name": "frontRight",
 				"port": 2,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -55,7 +56,7 @@
 				"name": "backLeft",
 				"port": 3,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -74,7 +75,7 @@
 				"name": "backRight",
 				"port": 4,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -102,11 +103,11 @@
 		]
 	},
 	"intake": {
-		"doubleSolenoid": [
+		"doubleSolenoids": [
 			{
 				"name": "intakePiston",
-				"forwardChannel": 0,
-				"reverseChannel": 0
+				"forwardChannel": 5,
+				"reverseChannel": 4
 			}
 		],
 		"sparks": [
@@ -126,26 +127,14 @@
 			}
 		]
 	},
-	"turret": {
-		"sparks": [
-			{
-				"name": "turret",
-				"port": 3,
-				"type": "Brushless",
-				"idleMode": "Brake",
-				"softLimitForward": 300,
-				"softLimitBackward": -300,
-				"pid": {
-					"slot0": {
-						"p": 0.5,
-						"outputMin": -1,
-						"outputMax": 1
-					}
-				}
-			}
-		]
-	},
 	"shooter": {
+		"doubleSolenoids": [
+			{
+				"name": "stop",
+				"forwardChannel": 3,
+				"reverseChannel": 2
+			}
+		],
 		"sparks": [
 			{
 				"name": "shooter",
@@ -167,13 +156,6 @@
 				"channel": 0,
 				"initialValue": 20
 			}
-		],
-		"solenoids": [
-			{
-				"name": "brake",
-				"channel": 0,
-				"initialValue": false
-			}
 		]
 	},
 	"indexer": {
@@ -182,7 +164,7 @@
 				"name": "indexerLeft",
 				"port": 7,
 				"inverted": true,
-				"idleMode": "Coast",
+				"idleMode": "Brake",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {
@@ -194,7 +176,8 @@
 			{
 				"name": "indexerRight",
 				"port": 8,
-				"idleMode": "Coast",
+				"inverted": true,
+				"idleMode": "Brake",
 				"type": "Brushed",
 				"pid": {
 					"slot0": {

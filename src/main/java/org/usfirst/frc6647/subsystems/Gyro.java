@@ -2,6 +2,7 @@ package org.usfirst.frc6647.subsystems;
 
 import org.usfirst.frc6647.robot.Constants;
 import org.usfirst.frc6647.robot.Robot;
+import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -10,32 +11,25 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperAHRS;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperAHRS;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * {@link SuperSubsystem} implementation for our {@link #navX Gyro}.
+ * {@link SuperSubsystem} implementation for our {@link #navX gyroscope}.
  */
 public class Gyro extends SuperSubsystem implements SuperAHRS {
-	/** {@link HyperAHRS} instance of the Robot's NavX. */
-	private HyperAHRS navX;
-	/** {@link JController} instance used by the Robot. */
+	/** {@link JController} instance used by the {@link Robot}. */
 	private JController joystick;
+	/** {@link HyperAHRS} instance used by this {@link Gyro subsystem}. */
+	private HyperAHRS navX;
 
 	/** Stores last detected world linear X and Y acceleration values. */
 	private double lastWorldLinearAccelX = 0.0, lastWorldLinearAccelY = 0.0;
 	/** Whether or not a collision was detected by the {@link #navX}. */
 	private boolean collisionDetected = false;
-
-	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
 
 	/**
 	 * Should only need to create a single of instance of {@link Gyro this class};
@@ -50,10 +44,8 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 		initAHRS(robotMap, getName());
 
 		// Additional initialiation & configuration.
-		navX = getAHRS("navX");
 		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
-
-		layout = Shuffleboard.getTab("Robot").getLayout("Gyro", BuiltInLayouts.kList);
+		navX = getAHRS("navX");
 
 		Runnable setRumble = () -> { // Sets joystick rumble to 0.5.
 			joystick.setRumble(RumbleType.kLeftRumble, 0.5);
@@ -66,15 +58,25 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 
 		Trigger collision = new Trigger(this::get); // Triggers when a collision is detected.
 		collision.whenActive(new InstantCommand(setRumble, this).withTimeout(1.5).andThen(stopRumble, this));
+		// ...
+
+		outputToShuffleboard();
 	}
 
 	@Override
-	public void periodic() {
-		// Debug data.
-		layout.add("navX", navX).withWidget(BuiltInWidgets.kGyro);
-		layout.add("navXYaw", navX.getYaw());
-		layout.add("navXHeading", navX.getHeading());
-		layout.add("collisionDetected", get()).withWidget(BuiltInWidgets.kBooleanBox);
+	protected void outputToShuffleboard() {
+		try {
+			layout.add(navX).withWidget(BuiltInWidgets.kGyro);
+			layout.addNumber("gyroYaw", navX::getYaw);
+			layout.addNumber("gyroHeading", navX::getHeading);
+			layout.addBoolean("collisionDetected", this::get).withWidget(BuiltInWidgets.kBooleanBox);
+		} catch (NullPointerException e) {
+			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
+					e.getLocalizedMessage());
+
+			System.out.println(error);
+			DriverStation.reportWarning(error, false);
+		}
 	}
 
 	/**
