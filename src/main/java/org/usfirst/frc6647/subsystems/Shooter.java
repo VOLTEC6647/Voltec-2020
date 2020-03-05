@@ -2,7 +2,6 @@ package org.usfirst.frc6647.subsystems;
 
 import java.util.function.Function;
 
-import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -12,16 +11,15 @@ import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperSolenoid;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperServo;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 /**
  * {@link SuperSubsystem} implementation of a {@link Shooter}.
@@ -34,22 +32,8 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 * motor}.
 	 */
 	private HyperDoubleSolenoid stop;
-
-	/**
-	 * {@link CANPIDController} instance of the {@link Shooter}'s {@link CANSparkMax
-	 * motor}.
-	 */
-	private CANPIDController shooterPID;
-	/**
-	 * {@link CANEncoder} instance of the {@link Shooter}'s {@link CANSparkMax
-	 * motor}.
-	 */
-	private CANEncoder shooterEncoder;
-
-	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
+	/** {@link HyperSparkMax} used by this {@link Shooter subsystem}. */
+	private HyperSparkMax shooter;
 
 	/** Formula to calculate distance from target. */
 	private Function<Double, Double> formula = ty -> ((3.8883 * Math.pow(10, 6)) * Math.pow((ty + 31.2852), -4.9682)
@@ -76,18 +60,26 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		hood = getServo("hood");
 		stop = getDoubleSolenoid("stop");
 
-		shooterPID = getSparkPID("shooter");
-		shooterEncoder = getSparkEncoder("shooter");
+		shooter = getSpark("shooter");
+		// ...
 
-		layout = Shuffleboard.getTab("Robot").getLayout("Shooter", BuiltInLayouts.kList);
+		outputToShuffleboard();
 	}
 
 	@Override
-	public void periodic() {
-		// Debug data.
-		layout.add("shooter_RPM", shooterEncoder.getVelocity()).withWidget(BuiltInWidgets.kGraph);
-		layout.add("hood_angle", hood.getAngle());
-		layout.add("shooter_on_target", onTarget()).withWidget(BuiltInWidgets.kBooleanBox);
+	protected void outputToShuffleboard() {
+		try {
+			layout.addNumber("shooterRPM", shooter.getEncoder()::getVelocity).withWidget(BuiltInWidgets.kGraph);
+			layout.addNumber("hoodAngle", hood::getAngle);
+			layout.addNumber("setpoint", this::getSetpoint);
+			layout.addBoolean("onTarget", this::onTarget).withWidget(BuiltInWidgets.kBooleanBox);
+		} catch (NullPointerException e) {
+			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
+					e.getLocalizedMessage());
+
+			System.out.println(error);
+			DriverStation.reportWarning(error, false);
+		}
 	}
 
 	/**
@@ -97,9 +89,14 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 */
 	public void setMotor() {
 		setpoint = calculate();
-		layout.add("setpoint", setpoint);
+		shooter.getPIDController().setReference(setpoint, ControlType.kVelocity);
+	}
 
-		shooterPID.setReference(setpoint, ControlType.kVelocity);
+	/**
+	 * Stops the {@link #shooter shooter motor} dead in its tracks.
+	 */
+	public void stopMotor() {
+		shooter.stopMotor();
 	}
 
 	/**
@@ -128,7 +125,16 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 * @return The {@link #shooterPID}'s error
 	 */
 	public double getError() {
-		return shooterEncoder.getVelocity() - setpoint;
+		return shooter.getEncoder().getVelocity() - setpoint;
+	}
+
+	/**
+	 * Gets the {@link #shooter}'s {@link CANPIDController}'s {@link #setpoint}.
+	 * 
+	 * @return The {@link CANPIDController}'s {@link #setpoint}
+	 */
+	public double getSetpoint() {
+		return setpoint;
 	}
 
 	/**
@@ -144,7 +150,7 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		var distance = formula.apply(ty);
 		layout.add("target_distance", distance);
 
-		var speed = 0.0;
+		var speed = 200;
 
 		// TODO Actually modify the speed value.
 		if (distance < 3) {

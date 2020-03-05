@@ -1,31 +1,23 @@
 package org.usfirst.frc6647.subsystems;
 
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
+/**
+ * {@link SuperSubsystem} implementation for our {@link Elevator}.
+ */
 public class Elevator extends SuperSubsystem implements SuperSparkMax {
-	/** {@link CANSparkMax} instances used by the {@link Elevator}. */
-	private CANSparkMax elevator, elevatorWheel;
-	/**
-	 * {@link CANPIDController} instance of the {@link Indexer}'s {@link #elevator
-	 * main motor}.
-	 */
-	private CANPIDController elevatorPID;
-
-	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
+	/** {@link HyperSparkMax} instances used by this {@link Elevator subsystem}. */
+	private HyperSparkMax elevator, elevatorWheel;
 
 	/**
 	 * Should only need to create a single of instance of {@link Elevator this
@@ -41,17 +33,27 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 
 		// Additional initialiation & configuration.
 		elevator = getSpark("elevator");
-		elevatorPID = getSparkPID("elevator");
 		elevatorWheel = getSpark("elevatorWheel");
 
 		layout = Shuffleboard.getTab("Robot").getLayout("Elevator", BuiltInLayouts.kList);
+		// ...
+
+		outputToShuffleboard();
 	}
 
 	@Override
-	public void periodic() {
-		// Debug data.
-		layout.add("elevatorCurrent", elevator.getOutputCurrent()).withWidget(BuiltInWidgets.kGraph);
-		layout.add("elevatorWheel", elevatorWheel).withWidget(BuiltInWidgets.kSpeedController);
+	protected void outputToShuffleboard() {
+		try {
+			layout.addNumber("elevatorCurrent", elevator::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
+			// layout.add(elevator).withWidget(BuiltInWidgets.kSpeedController);
+			// layout.add(elevatorWheel).withWidget(BuiltInWidgets.kSpeedController);
+		} catch (NullPointerException e) {
+			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
+					e.getLocalizedMessage());
+
+			System.out.println(error);
+			DriverStation.reportWarning(error, false);
+		}
 	}
 
 	/**
@@ -60,7 +62,7 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 	 * @param voltage The voltage at which to set the {@link #elevator motor}
 	 */
 	public void setElevatorVoltage(double voltage) {
-		elevatorPID.setReference(voltage, ControlType.kCurrent);
+		elevator.getPIDController().setReference(voltage, ControlType.kCurrent);
 	}
 
 	/**

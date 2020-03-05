@@ -18,7 +18,7 @@
 				"name": "frontLeft",
 				"port": 1,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -32,7 +32,7 @@
 				"name": "frontRight",
 				"port": 2,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -46,7 +46,7 @@
 				"name": "backLeft",
 				"port": 3,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -60,7 +60,7 @@
 				"name": "backRight",
 				"port": 4,
 				"limiter": 1,
-				"neutralMode": "Brake",
+				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -83,7 +83,7 @@
 		]
 	},
 	"intake": {
-		"doubleSolenoid": [
+		"doubleSolenoids": [
 			{
 				"name": "intakePiston",
 				"forwardChannel": 5,
@@ -100,25 +100,6 @@
 					"slot0": {
 						"p": 5,
 						"d": 40,
-						"outputMin": -1,
-						"outputMax": 1
-					}
-				}
-			}
-		]
-	},
-	"turret": {
-		"sparks": [
-			{
-				"name": "turret",
-				"port": 3,
-				"type": "Brushless",
-				"idleMode": "Brake",
-				"softLimitForward": 300,
-				"softLimitBackward": -300,
-				"pid": {
-					"slot0": {
-						"p": 0.5,
 						"outputMin": -1,
 						"outputMax": 1
 					}

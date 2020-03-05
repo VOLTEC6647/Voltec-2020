@@ -5,9 +5,8 @@ import org.usfirst.frc6647.subsystems.Elevator;
 import org.usfirst.frc6647.subsystems.Gyro;
 import org.usfirst.frc6647.subsystems.Indexer;
 import org.usfirst.frc6647.subsystems.Intake;
-import org.usfirst.frc6647.subsystems.Limelight;
 import org.usfirst.frc6647.subsystems.Shooter;
-import org.usfirst.frc6647.subsystems.Turret;
+import org.usfirst.frc6647.subsystems.Vision;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopContainer;
 import org.usfirst.lib6647.oi.JController;
@@ -15,9 +14,9 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 /**
@@ -26,52 +25,38 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
  * {@link JController joysticks}.
  */
 public class RobotContainer extends LoopContainer {
-	/** The {@link Robot}'s main {@link Chassis} instance. */
-	private final Chassis chassis;
-	/** The {@link Robot}'s main {@link Gyro} instance. */
-	private final Gyro gyro;
-	/** The {@link Robot}'s main {@link Intake} instance. */
-	private final Intake intake;
-	/** The {@link Robot}'s main {@link Shooter} instance. */
-	private final Shooter shooter;
-	/** The {@link Robot}'s main {@link Turret} instance. */
-	private final Turret turret;
-	/** The {@link Robot}'s main {@link Indexer} instance. */
-	private final Indexer indexer;
-	/** The {@link Robot}'s main {@link Elevator} instance. */
-	private final Elevator elevator;
+	/** The {@link Robot}'s {@link Chassis} instance. */
+	private Chassis chassis;
+	/** The {@link Robot}'s {@link Gyro} instance. */
+	private Gyro gyro;
+	/** The {@link Robot}'s {@link Intake} instance. */
+	private Intake intake;
+	/** The {@link Robot}'s {@link Shooter} instance. */
+	private Shooter shooter;
+	/** The {@link Robot}'s {@link Indexer} instance. */
+	private Indexer indexer;
+	/** The {@link Robot}'s {@link Elevator} instance. */
+	private Elevator elevator;
+	/** The {@link Robot}'s {@link Vision} instance. */
+	private Vision vision;
 
-	public final Limelight vision;
-	/**
-	 * Constructor for the main 'Container' class for the {@link Robot}, which
-	 * contains all of the {@link Robot}'s {@link Loop loops}, {@link SuperSubsystem
-	 * subsystems}, and {@link JController joysticks}.
-	 */
-	public RobotContainer() {
-		// Initialize Joysticks.
-		initJoysticks();
-
+	@Override
+	public void initSubsystems() {
 		// Initialize every Subsystem.
 		chassis = new Chassis();
 		gyro = new Gyro();
 		intake = new Intake();
 		shooter = new Shooter();
-		turret = new Turret();
 		indexer = new Indexer();
 		elevator = new Elevator();
-		vision = new Limelight();
-		// Register each initialized Subsystem.
-		registerSubsystems(chassis, gyro, intake, shooter, turret, indexer, elevator);
+		vision = new Vision();
 
-		configureButtonBindings();
+		// Register each initialized Subsystem.
+		registerSubsystems(chassis, gyro, intake, shooter, indexer, elevator);
 	}
-	public Chassis getChassis(){
-		return chassis;
-	}
-	/**
-	 * Run any {@link JController} initialization here.
-	 */
-	private void initJoysticks() {
+
+	@Override
+	public void initJoysticks() {
 		// Create JController object.
 		var driver1 = new JController(0);
 
@@ -92,15 +77,13 @@ public class RobotContainer extends LoopContainer {
 		// Register each instantiated JController object in the joysticks HashMap.
 		registerJoystick(driver1, "driver1");
 	}
-	/**
-	 * Throw all {@link Command} initialization and {@link JController} binding into
-	 * this method.
-	 */
-	private void configureButtonBindings() {
+
+	@Override
+	public void configureButtonBindings() {
 		var driver1 = getJoystick("driver1");
 
 		// Chassis commands.
-		StartEndCommand toggleTurbo = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
+		var toggleTurbo = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
 		// ...
 
 		// Intake commands.
@@ -110,30 +93,32 @@ public class RobotContainer extends LoopContainer {
 			indexer.stopPulley();
 		};
 
-		// Debug commands.
-		StartEndCommand intakeIn = new StartEndCommand(() -> intake.setMotorVoltage(-40), ballStop);
-		StartEndCommand intakeOut = new StartEndCommand(() -> intake.setMotorVoltage(40), ballStop);
-		StartEndCommand indexerIn = new StartEndCommand(() -> indexer.setIndexerVoltage(-40, -40), ballStop);
-		StartEndCommand indexerOut = new StartEndCommand(() -> indexer.setIndexerVoltage(40, 40), ballStop);
-		StartEndCommand pulleyIn = new StartEndCommand(() -> indexer.setPulleyVoltage(-40, -40), ballStop);
-		StartEndCommand pulleyOut = new StartEndCommand(() -> indexer.setPulleyVoltage(40, 40), ballStop);
+		// Intake commands.
+		var intakeIn = new StartEndCommand(() -> intake.setMotorVoltage(-40), ballStop);
+		var intakeOut = new StartEndCommand(() -> intake.setMotorVoltage(40), ballStop);
+		var indexerIn = new StartEndCommand(() -> indexer.setIndexerVoltage(-40, -40), ballStop);
+		var indexerOut = new StartEndCommand(() -> indexer.setIndexerVoltage(40, 40), ballStop);
+		var pulleyIn = new StartEndCommand(() -> indexer.setPulleyVoltage(-40, -40), ballStop);
+		var pulleyOut = new StartEndCommand(() -> indexer.setPulleyVoltage(40, 40), ballStop);
 
-		StartEndCommand ballOut = new StartEndCommand(() -> { // Ball out.
+		var ballOut = new StartEndCommand(() -> { // Ball out.
 			intake.setMotorVoltage(40);
 			indexer.setIndexerVoltage(40, 40);
 			indexer.setPulleyVoltage(40, 40);
 		}, ballStop, intake, indexer);
-		StartEndCommand ballIn = new StartEndCommand(() -> { // Ball in.
+		var ballIn = new StartEndCommand(() -> { // Ball in.
 			intake.setMotorVoltage(-40);
 			indexer.setIndexerVoltage(-40, -40);
 			indexer.setPulleyVoltage(-40, -40);
 		}, ballStop, intake, indexer);
 		// ...
 
-		// Turret commands.
-		FunctionalCommand zeroTurret = new FunctionalCommand(() -> turret.reset(Rotation2d.fromDegrees(0)),
-				() -> turret.setMotor(-0.4), interrupted -> turret.reset(Rotation2d.fromDegrees(0)),
-				turret::getReverseLimitSwitch, turret);
+		// Vision commands.
+		var aimChassis = new ProfiledPIDCommand(
+				new ProfiledPIDController(Constants.Aim.kP, Constants.Aim.kI, Constants.Aim.kD,
+						new TrapezoidProfile.Constraints(Constants.Aim.maxVelocity, Constants.Aim.maxAceleration)),
+				vision::getHorizontalRotation, () -> 0, (output, setpoint) -> chassis.arcadeDrive(0, output), chassis,
+				vision);
 		// ...
 
 		try {
@@ -142,8 +127,8 @@ public class RobotContainer extends LoopContainer {
 					.whenActive(chassis::toggleSong);
 			driver1.get("L2", "LTrigger").whileHeld(toggleTurbo);
 
-			// driver1.get("L1", "LBumper").whileHeld(ballOut);
-			// driver1.get("R1", "RBumper").whileHeld(ballIn);
+			driver1.get("L1", "LBumper").whileHeld(ballOut);
+			driver1.get("R1", "RBumper").whileHeld(ballIn);
 
 			driver1.get("dPadDown").whileHeld(intakeOut);
 			driver1.get("dPadRight").whileHeld(indexerOut);
@@ -153,7 +138,7 @@ public class RobotContainer extends LoopContainer {
 			driver1.get("Square").whileHeld(indexerIn);
 			driver1.get("Triangle").whileHeld(pulleyIn);
 
-			driver1.get("dPadLeft").whenPressed(zeroTurret);
+			driver1.get("Touchpad").whileHeld(aimChassis);
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);

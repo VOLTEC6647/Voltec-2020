@@ -21,9 +21,9 @@ import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperFalcon;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -37,9 +37,9 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	private JController joystick;
 	/** {@link Compressor} instance used by the {@link Robot}. */
 	private Compressor compressor;
-	/** {@link HyperFalcon HyperFalcons} used by this {@link SuperSubsystem}. */
+	/** {@link HyperFalcon HyperFalcons} used by this {@link Chassis subsystem}. */
 	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
-	/** {@link HyperSolenoid} used by this {@link SuperSubsystem}. */
+	/** {@link HyperSolenoid} used by this {@link Chassis subsystem}. */
 	private HyperDoubleSolenoid reduction;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
@@ -60,6 +60,7 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 		// All SuperComponents must be initialized like this. The 'robotMap' Object is
 		// inherited from the SuperSubsystem class, while the second argument is simply
 		// this Subsystem's name.
+		initCompressors(robotMap, getName());
 		initDoubleSolenoids(robotMap, getName());
 		initFalcons(robotMap, getName());
 
@@ -76,17 +77,25 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 		reduction = getDoubleSolenoid("reduction");
 
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
+		// ...
 
-		layout = Shuffleboard.getTab("Robot").getLayout("Chassis", BuiltInLayouts.kList);
+		outputToShuffleboard();
 	}
 
 	@Override
-	public void periodic() {
-		// Debug data.
-		layout.add("frontLeftMotor", frontLeft).withWidget(BuiltInWidgets.kSpeedController);
-		layout.add("frontRightMotor", frontRight).withWidget(BuiltInWidgets.kSpeedController);
-		layout.add("backLeftMotor", backLeft).withWidget(BuiltInWidgets.kSpeedController);
-		layout.add("backRightMotor", backRight).withWidget(BuiltInWidgets.kSpeedController);
+	protected void outputToShuffleboard() {
+		try {
+			layout.add(frontLeft).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(frontRight).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(backLeft).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(backRight).withWidget(BuiltInWidgets.kSpeedController);
+		} catch (NullPointerException e) {
+			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
+					e.getLocalizedMessage());
+
+			System.out.println(error);
+			DriverStation.reportWarning(error, false);
+		}
 	}
 
 	/**
