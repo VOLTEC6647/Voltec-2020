@@ -77,6 +77,10 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 		indexerLeftPID.setReference(leftVoltage, ControlType.kCurrent);
 		indexerRightPID.setReference(rightVoltage, ControlType.kCurrent);
 	}
+	public void set(double leftVoltage, double rightVoltage) {
+		indexerLeft.set(leftVoltage);
+		indexerRight.set(rightVoltage);
+	}
 
 	/**
 	 * Stops the {@link Indexer}'s {@link #indexerLeft left} and
@@ -98,6 +102,11 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 	public void setPulleyVoltage(double frontVoltage, double backVoltage) {
 		pulleyFrontPID.setReference(frontVoltage, ControlType.kCurrent);
 		pulleyBackPID.setReference(backVoltage, ControlType.kCurrent);
+	}
+
+	public void setPulley(double frontVoltage, double backVoltage){
+		pulleyFront.set(frontVoltage);
+		pulleyBack.set(backVoltage);
 	}
 
 	/**

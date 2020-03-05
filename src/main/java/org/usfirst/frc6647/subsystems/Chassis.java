@@ -73,6 +73,7 @@ public class Chassis extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
 
 		layout = Shuffleboard.getTab("Robot").getLayout("Chassis", BuiltInLayouts.kList);
+		
 	}
 
 	@Override

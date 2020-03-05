@@ -25,6 +25,11 @@
 						"feedbackDevice": "IntegratedSensor",
 						"sensorPos": 0
 					}
+				},
+				"config": {
+					"loopRamp": {
+						"openloopRamp": 2
+					}
 				}
 			},
 			{
@@ -38,6 +43,11 @@
 					"primary": {
 						"feedbackDevice": "IntegratedSensor",
 						"sensorPos": 0
+					}
+				},
+				"config": {
+					"loopRamp": {
+						"openloopRamp": 2
 					}
 				}
 			},
@@ -53,6 +63,11 @@
 						"feedbackDevice": "IntegratedSensor",
 						"sensorPos": 0
 					}
+				},
+				"config": {
+					"loopRamp":{
+						"openloopRamp": 2
+					}
 				}
 			},
 			{
@@ -67,7 +82,12 @@
 						"feedbackDevice": "IntegratedSensor",
 						"sensorPos": 0
 					}
-				}
+				},
+					"config":{
+						"loopRamp":{
+							"openloopRamp": 2
+						}
+					}
 			}
 		]
 	},
@@ -131,7 +151,14 @@
 				"name": "shooter",
 				"port": 4,
 				"type": "Brushless",
-				"idleMode": "Coast"
+				"idleMode": "Coast",
+				"pid": {
+					"slot0": {
+						"p": 0.0025,
+						"d": 0.0025,
+						"f": 0.0002
+					}
+				}
 			}
 		],
 		"servos": [
