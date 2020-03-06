@@ -45,11 +45,6 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	private Orchestra orchestra;
 
 	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
-
-	/**
 	 * Should only need to create a single of instance of {@link Chassis this
 	 * class}; inside the {@link RobotContainer}.
 	 */

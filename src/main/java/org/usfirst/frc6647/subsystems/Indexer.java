@@ -73,8 +73,16 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 		indexerRight.getPIDController().setReference(rightCurrent, ControlType.kCurrent);
 
 	}
-	
-	public void setIndexer(double leftSpeed, double rightSpeed) {
+
+	/**
+	 * Method to set the speed of both {@link Indexer} motors.
+	 * 
+	 * @param leftSpeed  The speed at which to set the {@link #indexerLeft left
+	 *                   motor}
+	 * @param rightSpeed The speed at which to set the {@link #indexerRight right
+	 *                   motor}
+	 */
+	public void setIndexerSpeed(double leftSpeed, double rightSpeed) {
 		indexerLeft.set(leftSpeed);
 		indexerRight.set(rightSpeed);
 	}
@@ -101,9 +109,17 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 		pulleyBack.getPIDController().setReference(backVoltage, ControlType.kCurrent);
 	}
 
-	public void setPulley(double frontVoltage, double backVoltage){
-		pulleyFront.set(frontVoltage);
-		pulleyBack.set(backVoltage);
+	/**
+	 * Method to set speed of both {@link Indexer pulley} motors.
+	 * 
+	 * @param frontSpeed The speed at which to set the {@link #pulleyFront front
+	 *                   motor}
+	 * @param backSpeed  The speed at which to set the {@link #pulleyBack back
+	 *                   motor}
+	 */
+	public void setPulleySpeed(double frontSpeed, double backSpeed) {
+		pulleyFront.set(frontSpeed);
+		pulleyBack.set(backSpeed);
 	}
 
 	/**
