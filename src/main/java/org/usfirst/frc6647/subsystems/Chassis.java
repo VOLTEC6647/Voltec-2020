@@ -25,8 +25,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 /**
  * Simple {@link Chassis Chassis/Drive} {@link SuperSubsystem} implementation,
@@ -44,11 +42,6 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
-
-	/**
-	 * The {@link ShuffleboardLayout layout} to update in the {@link Shuffleboard}.
-	 */
-	private ShuffleboardLayout layout;
 
 	/**
 	 * Should only need to create a single of instance of {@link Chassis this

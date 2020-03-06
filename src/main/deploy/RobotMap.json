@@ -201,7 +201,6 @@
 			{
 				"name": "pulleyFront",
 				"port": 2,
-				"inverted": true,
 				"idleMode": "Brake",
 				"type": "Brushless",
 				"pid": {

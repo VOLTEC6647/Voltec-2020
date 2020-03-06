@@ -127,8 +127,8 @@ public class RobotContainer extends LoopContainer {
 					.whenActive(chassis::toggleSong);
 			driver1.get("L2", "LTrigger").whileHeld(toggleTurbo);
 
-			driver1.get("L1", "LBumper").whileHeld(ballOut);
-			driver1.get("R1", "RBumper").whileHeld(ballIn);
+			// driver1.get("L1", "LBumper").whileHeld(ballOut);
+			// driver1.get("R1", "RBumper").whileHeld(ballIn);
 
 			driver1.get("dPadDown").whileHeld(intakeOut);
 			driver1.get("dPadRight").whileHeld(indexerOut);

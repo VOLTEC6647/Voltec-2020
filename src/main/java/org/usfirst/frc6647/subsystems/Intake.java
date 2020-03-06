@@ -46,7 +46,7 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 	@Override
 	protected void outputToShuffleboard() {
 		try {
-			layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
+			// layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
 			layout.addNumber("intakeVoltage", intake::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
