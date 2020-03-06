@@ -92,6 +92,9 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		shooter.getPIDController().setReference(setpoint, ControlType.kVelocity);
 	}
 
+	public void setMotorPercentage(double percentage) {
+		shooter.set(percentage);
+	}
 	/**
 	 * Stops the {@link #shooter shooter motor} dead in its tracks.
 	 */

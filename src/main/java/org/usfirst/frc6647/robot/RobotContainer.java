@@ -59,6 +59,7 @@ public class RobotContainer extends LoopContainer {
 	public void initJoysticks() {
 		// Create JController object.
 		var driver1 = new JController(0);
+		var driver2 = new JController(1);
 
 		System.out.printf("Found: '%s'!\n", driver1.getName());
 
@@ -74,6 +75,18 @@ public class RobotContainer extends LoopContainer {
 			driver1.setXY(Hand.kLeft, 4, 5);
 		}
 
+		if (driver2.getName().equals("Wireless Controller")) {
+			driver2.setXY(Hand.kLeft, 0, 1);
+			driver2.setXY(Hand.kRight, 2, 5);
+		} else if (driver2.getName().equals("Generic   USB  Joystick")) {
+			driver2.setXY(Hand.kLeft, 0, 1);
+			driver2.setXY(Hand.kRight, 2, 4);
+		} else if (driver2.getName().toLowerCase().contains("xbox")
+				|| driver2.getName().equals("Controller (Gamepad F310)")) {
+			driver2.setXY(Hand.kLeft, 0, 1);
+			driver2.setXY(Hand.kLeft, 4, 5);
+		}
+
 		// Register each instantiated JController object in the joysticks HashMap.
 		registerJoystick(driver1, "driver1");
 	}
@@ -81,9 +94,10 @@ public class RobotContainer extends LoopContainer {
 	@Override
 	public void configureButtonBindings() {
 		var driver1 = getJoystick("driver1");
+		var driver2 = getJoystick("driver2");
 
 		// Chassis commands.
-		var toggleTurbo = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
+		var toggleReduction  = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
 		// ...
 
 		// Intake commands.
@@ -91,26 +105,34 @@ public class RobotContainer extends LoopContainer {
 			intake.stopMotor();
 			indexer.stopIndexer();
 			indexer.stopPulley();
+			shooter.setMotorPercentage(0);
 		};
-
+		Runnable elevatorStop = () -> {
+			elevator.setElevatorSpeed(0);
+			elevator.setWheelSpeed(0);
+		};
 		// Intake commands.
 		var intakeIn = new StartEndCommand(() -> intake.setMotorVoltage(-40), ballStop);
 		var intakeOut = new StartEndCommand(() -> intake.setMotorVoltage(40), ballStop);
-		var indexerIn = new StartEndCommand(() -> indexer.setIndexerVoltage(-40, -40), ballStop);
-		var indexerOut = new StartEndCommand(() -> indexer.setIndexerVoltage(40, 40), ballStop);
-		var pulleyIn = new StartEndCommand(() -> indexer.setPulleyVoltage(-40, -40), ballStop);
-		var pulleyOut = new StartEndCommand(() -> indexer.setPulleyVoltage(40, 40), ballStop);
+		var indexerIn = new StartEndCommand(() -> indexer.setIndexer(-1, -1), ballStop);
+		var indexerOut = new StartEndCommand(() -> indexer.setIndexer(1, 1), ballStop);
+		var pulleyIn = new StartEndCommand(() -> indexer.setPulley(-1, -1), ballStop);
+		var pulleyOut = new StartEndCommand(() -> indexer.setPulley(1, 1), ballStop);
+		var climberUp = new StartEndCommand(() -> elevator.setElevatorSpeed(1), elevatorStop);
+		var climberDown = new StartEndCommand(() -> elevator.setElevatorSpeed(-1), elevatorStop);
+		var climberRight = new StartEndCommand(() -> elevator.setWheelSpeed(1), elevatorStop);
+		var climberLeft = new StartEndCommand(() -> elevator.setWheelSpeed(-1), elevatorStop);
 
 		var ballOut = new StartEndCommand(() -> { // Ball out.
-			intake.setMotorVoltage(40);
-			indexer.setIndexerVoltage(40, 40);
-			indexer.setPulleyVoltage(40, 40);
-		}, ballStop, intake, indexer);
+			indexer.setIndexer(-1, -1);
+			indexer.setPulley(1, 1);
+			shooter.setMotorPercentage(-.3);
+		}, ballStop, indexer, shooter);
 		var ballIn = new StartEndCommand(() -> { // Ball in.
-			intake.setMotorVoltage(-40);
-			indexer.setIndexerVoltage(-40, -40);
-			indexer.setPulleyVoltage(-40, -40);
-		}, ballStop, intake, indexer);
+			indexer.setIndexer(1, 1);
+			indexer.setPulley(-1, -1);
+			shooter.setMotorPercentage(.3);
+		}, ballStop, indexer, shooter);
 		// ...
 
 		// Vision commands.
@@ -125,7 +147,7 @@ public class RobotContainer extends LoopContainer {
 			driver1.get("Options", "Start").whenPressed(chassis::prepareSong);
 			driver1.get("L2", "LTrigger").and(driver1.get("R2", "RTrigger")).and(driver1.get("Share", "Select"))
 					.whenActive(chassis::toggleSong);
-			driver1.get("L2", "LTrigger").whileHeld(toggleTurbo);
+			driver1.get("L2", "LTrigger").whileHeld(toggleReduction);
 
 			driver1.get("L1", "LBumper").whileHeld(ballOut);
 			driver1.get("R1", "RBumper").whileHeld(ballIn);
@@ -138,7 +160,11 @@ public class RobotContainer extends LoopContainer {
 			driver1.get("Square").whileHeld(indexerIn);
 			driver1.get("Triangle").whileHeld(pulleyIn);
 
-			driver1.get("Touchpad").whileHeld(aimChassis);
+			driver2.get("dPadUp").whileHeld(climberUp);
+			driver2.get("dPadDown").whileHeld(climberDown);
+			driver2.get("dPadRight").whileHeld(climberRight);
+			driver2.get("dPadLeft").whileHeld(climberLeft);
+
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);

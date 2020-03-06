@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
@@ -85,10 +84,10 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	@Override
 	protected void outputToShuffleboard() {
 		try {
-			layout.add(frontLeft).withWidget(BuiltInWidgets.kSpeedController);
-			layout.add(frontRight).withWidget(BuiltInWidgets.kSpeedController);
-			layout.add(backLeft).withWidget(BuiltInWidgets.kSpeedController);
-			layout.add(backRight).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(frontLeft);
+			layout.add(frontRight);
+			layout.add(backLeft);
+			layout.add(backRight);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());

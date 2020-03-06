@@ -1,6 +1,7 @@
 package org.usfirst.frc6647.subsystems;
 
 import com.revrobotics.ControlType;
+import com.revrobotics.EncoderType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
@@ -39,6 +40,8 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 		// ...
 
 		outputToShuffleboard();
+		indexerLeft.getEncoder(EncoderType.kNoSensor, 0);
+		indexerRight.getEncoder(EncoderType.kNoSensor, 0);
 	}
 
 	@Override
@@ -60,18 +63,20 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 	/**
 	 * Method to set voltage of both {@link Indexer} motors.
 	 * 
-	 * @param leftVoltage  The voltage at which to set the {@link #indexerLeft left
+	 * @param leftCurrent  The voltage at which to set the {@link #indexerLeft left
 	 *                     motor}
-	 * @param rightVoltage The voltage at which to set the {@link #indexerRight
+	 * @param rightCurrent The voltage at which to set the {@link #indexerRight
 	 *                     right motor}
 	 */
-	public void setIndexerVoltage(double leftVoltage, double rightVoltage) {
-		indexerLeft.getPIDController().setReference(leftVoltage, ControlType.kCurrent);
-		indexerRight.getPIDController().setReference(rightVoltage, ControlType.kCurrent);
+	public void setIndexerCurrent(double leftCurrent, double rightCurrent) {
+		indexerLeft.getPIDController().setReference(leftCurrent, ControlType.kCurrent);
+		indexerRight.getPIDController().setReference(rightCurrent, ControlType.kCurrent);
+
 	}
-	public void set(double leftVoltage, double rightVoltage) {
-		indexerLeft.set(leftVoltage);
-		indexerRight.set(rightVoltage);
+	
+	public void setIndexer(double leftSpeed, double rightSpeed) {
+		indexerLeft.set(leftSpeed);
+		indexerRight.set(rightSpeed);
 	}
 
 	/**

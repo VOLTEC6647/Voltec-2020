@@ -176,7 +176,6 @@
 			{
 				"name": "indexerRight",
 				"port": 8,
-				"inverted": true,
 				"idleMode": "Brake",
 				"type": "Brushed",
 				"pid": {
@@ -201,12 +200,12 @@
 			{
 				"name": "pulleyFront",
 				"port": 2,
-				"inverted": true,
 				"idleMode": "Brake",
 				"type": "Brushless",
 				"pid": {
 					"slot0": {
 						"p": 0.5,
+						"i":0,
 						"d": 40
 					}
 				}
