@@ -1,5 +1,7 @@
 package org.usfirst.frc6647.robot;
 
+import java.util.function.Consumer;
+
 import org.usfirst.frc6647.subsystems.Chassis;
 import org.usfirst.frc6647.subsystems.Elevator;
 import org.usfirst.frc6647.subsystems.Gyro;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
@@ -97,42 +100,61 @@ public class RobotContainer extends LoopContainer {
 		var driver2 = getJoystick("driver2");
 
 		// Chassis commands.
-		var toggleReduction  = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
+		var toggleReduction = new StartEndCommand(chassis::toggleReduction, chassis::toggleReduction);
+		var toggleHeading = new StartEndCommand(chassis::toggleHeading, chassis::toggleHeading);
 		// ...
 
 		// Intake commands.
-		Runnable ballStop = () -> { // Stop intake, indexer, and pulley motors.
+		Runnable ballStop = () -> {
 			intake.stopMotor();
 			indexer.stopIndexer();
 			indexer.stopPulley();
-			shooter.setMotorPercentage(0);
 		};
+		Runnable ballIn = () -> {
+			intake.setMotorSpeed(1);
+			indexer.setIndexerSpeed(1, 1);
+			indexer.setPulleySpeed(-1, -1);
+		};
+
+		var toggleIntake = new StartEndCommand(intake::toggleSolenoid, intake::toggleSolenoid);
+		// ...
+
+		// Elevator commands.
 		Runnable elevatorStop = () -> {
 			elevator.setElevatorSpeed(0);
 			elevator.setWheelSpeed(0);
 		};
-		// Intake commands.
-		var intakeIn = new StartEndCommand(() -> intake.setMotorVoltage(-40), ballStop);
-		var intakeOut = new StartEndCommand(() -> intake.setMotorVoltage(40), ballStop);
-		var indexerIn = new StartEndCommand(() -> indexer.setIndexer(-1, -1), ballStop);
-		var indexerOut = new StartEndCommand(() -> indexer.setIndexer(1, 1), ballStop);
-		var pulleyIn = new StartEndCommand(() -> indexer.setPulley(-1, -1), ballStop);
-		var pulleyOut = new StartEndCommand(() -> indexer.setPulley(1, 1), ballStop);
+
 		var climberUp = new StartEndCommand(() -> elevator.setElevatorSpeed(1), elevatorStop);
 		var climberDown = new StartEndCommand(() -> elevator.setElevatorSpeed(-1), elevatorStop);
+
 		var climberRight = new StartEndCommand(() -> elevator.setWheelSpeed(1), elevatorStop);
 		var climberLeft = new StartEndCommand(() -> elevator.setWheelSpeed(-1), elevatorStop);
+		// ...
 
-		var ballOut = new StartEndCommand(() -> { // Ball out.
-			indexer.setIndexer(-1, -1);
-			indexer.setPulley(1, 1);
-			shooter.setMotorPercentage(-.3);
-		}, ballStop, indexer, shooter);
-		var ballIn = new StartEndCommand(() -> { // Ball in.
-			indexer.setIndexer(1, 1);
-			indexer.setPulley(-1, -1);
-			shooter.setMotorPercentage(.3);
-		}, ballStop, indexer, shooter);
+		// Shooter commands.
+		Runnable startFeeding = () -> {
+			if (!shooter.onTarget())
+				return;
+			indexer.setIndexerSpeed(1, 1);
+			indexer.setPulleySpeed(1, 1);
+		};
+		Consumer<Boolean> stopFeeding = interrupted -> { // Wish this was possible in Leauge
+			indexer.stopIndexer();
+			indexer.stopPulley();
+			shooter.stopMotor();
+		};
+
+		var initiationLineShoot = new FunctionalCommand(
+				() -> shooter.setMotor(Constants.ShooterConstants.initiationLineRPM), startFeeding, stopFeeding,
+				() -> false, indexer, shooter);
+		var trenchShoot = new FunctionalCommand(() -> shooter.setMotor(Constants.ShooterConstants.trenchRPM),
+				startFeeding, stopFeeding, () -> false, indexer, shooter);
+		var behindTrenchShoot = new FunctionalCommand(
+				() -> shooter.setMotor(Constants.ShooterConstants.behindTrenchRPM), startFeeding, stopFeeding,
+				() -> false, indexer, shooter);
+		var cursedShoot = new FunctionalCommand(() -> shooter.setMotor(Constants.ShooterConstants.cursedRPM),
+				startFeeding, stopFeeding, () -> false, indexer, shooter);
 		// ...
 
 		// Vision commands.
@@ -144,26 +166,28 @@ public class RobotContainer extends LoopContainer {
 		// ...
 
 		try {
+			// Driver 1 commands.
 			driver1.get("Options", "Start").whenPressed(chassis::prepareSong);
-			driver1.get("L2", "LTrigger").and(driver1.get("R2", "RTrigger")).and(driver1.get("Share", "Select"))
-					.whenActive(chassis::toggleSong);
+			driver1.get("Touchpad", "Select").whenPressed(chassis::toggleSong);
+
 			driver1.get("L2", "LTrigger").whileHeld(toggleReduction);
+			driver1.get("R2", "RTrigger").whileHeld(toggleHeading);
+			// ...
 
-			// driver1.get("L1", "LBumper").whileHeld(ballOut);
-			// driver1.get("R1", "RBumper").whileHeld(ballIn);
+			// Driver 2 commands.
+			driver2.get("L2", "LTrigger").whileHeld(toggleIntake);
+			driver2.get("L1", "LBumper").whileHeld(ballIn).whenReleased(ballStop);
 
-			driver1.get("dPadDown").whileHeld(intakeOut);
-			driver1.get("dPadRight").whileHeld(indexerOut);
-			driver1.get("dPadUp").whileHeld(pulleyOut);
-
-			driver1.get("X").whileHeld(intakeIn);
-			driver1.get("Square").whileHeld(indexerIn);
-			driver1.get("Triangle").whileHeld(pulleyIn);
+			driver2.get("X").whileHeld(initiationLineShoot);
+			driver2.get("Circle").whileHeld(trenchShoot);
+			driver2.get("Square").whileHeld(behindTrenchShoot);
+			driver2.get("Triangle").whileHeld(cursedShoot);
 
 			driver2.get("dPadUp").whileHeld(climberUp);
 			driver2.get("dPadDown").whileHeld(climberDown);
-			driver2.get("dPadRight").whileHeld(climberRight);
 			driver2.get("dPadLeft").whileHeld(climberLeft);
+			driver2.get("dPadRight").whileHeld(climberRight);
+			// ...
 
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());

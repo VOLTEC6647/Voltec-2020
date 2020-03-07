@@ -61,6 +61,11 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 		elevator.getPIDController().setReference(voltage, ControlType.kCurrent);
 	}
 
+	/**
+	 * Method to set the {@link #elevator}'s speed value.
+	 * 
+	 * @param percentage The speed at which to set the {@link #elevator motor1}
+	 */
 	public void setElevatorSpeed(double percentage) {
 		elevator.set(percentage);
 	}

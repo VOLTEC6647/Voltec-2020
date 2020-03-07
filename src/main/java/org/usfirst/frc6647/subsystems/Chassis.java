@@ -24,8 +24,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
 /**
  * Simple {@link Chassis Chassis/Drive} {@link SuperSubsystem} implementation,
@@ -43,6 +42,11 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
+
+	/**
+	 * Checks whether the {@link Robot}'s 'front' is at the front, or at the back.
+	 */
+	private boolean inverted = false;
 
 	/**
 	 * Should only need to create a single of instance of {@link Chassis this
@@ -79,10 +83,15 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	@Override
 	protected void outputToShuffleboard() {
 		try {
-			layout.add(frontLeft);
-			layout.add(frontRight);
-			layout.add(backLeft);
-			layout.add(backRight);
+			layout.add(frontLeft).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(frontRight).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(backLeft).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(backRight).withWidget(BuiltInWidgets.kSpeedController);
+
+			// layout.addNumber("frontLeftVoltage", frontLeft::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
+			// layout.addNumber("frontRightVoltage", frontRight::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
+			// layout.addNumber("backLeftVoltage", backLeft::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
+			// layout.addNumber("backRightVoltage", backRight::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -122,17 +131,24 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	}
 
 	/**
+	 * Toggles where the {@link Robot}'s 'front' is.
+	 */
+	public void toggleHeading() {
+		inverted = !inverted;
+	}
+
+	/**
 	 * Use {@link HyperFalcon falcons} as an arcade drive.
 	 * 
 	 * @param forward  The drive's forward speed
 	 * @param rotation The drive's rotation speed
 	 */
 	public void arcadeDrive(double forward, double rotation) {
-		frontLeft.setWithRamp(forward, -rotation);
-		backLeft.setWithRamp(forward, -rotation);
+		frontLeft.set(forward * (inverted ? -1 : 1), -rotation * (inverted ? -1 : 1));
+		backLeft.set(forward * (inverted ? -1 : 1), -rotation * (inverted ? -1 : 1));
 
-		frontRight.setWithRamp(forward, rotation);
-		backRight.setWithRamp(forward, rotation);
+		frontRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
+		backRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
 	}
 
 	@Override

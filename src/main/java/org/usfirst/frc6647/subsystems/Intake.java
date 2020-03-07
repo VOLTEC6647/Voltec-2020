@@ -1,6 +1,7 @@
 package org.usfirst.frc6647.subsystems;
 
 import com.revrobotics.ControlType;
+import com.revrobotics.EncoderType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
@@ -36,6 +37,7 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 
 		// Additional initialiation & configuration.
 		intake = getSpark("intake");
+		intake.getEncoder(EncoderType.kNoSensor, 0);
 
 		intakePiston = getDoubleSolenoid("intakePiston");
 		// ...
@@ -66,6 +68,15 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 	 */
 	public void setMotorVoltage(double voltage) {
 		intake.getPIDController().setReference(voltage, ControlType.kCurrent);
+	}
+
+	/**
+	 * Sets the {@link Intake}'s main {@link #intake motor}'s speed value.
+	 * 
+	 * @param speed The speed at which to set the {@link #intake motor} to
+	 */
+	public void setMotorSpeed(double speed) {
+		intake.set(speed);
 	}
 
 	/**

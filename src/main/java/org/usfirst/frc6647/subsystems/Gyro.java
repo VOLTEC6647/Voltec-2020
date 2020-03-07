@@ -56,11 +56,28 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 			joystick.setRumble(RumbleType.kRightRumble, 0.0);
 		};
 
-		Trigger collision = new Trigger(this::get); // Triggers when a collision is detected.
-		collision.whenActive(new InstantCommand(setRumble, this).withTimeout(1.5).andThen(stopRumble, this));
+		var collision = new Trigger(this::get); // Triggers when a collision is detected.
+		collision.whenActive(new InstantCommand(setRumble, this).withTimeout(5).andThen(stopRumble, this));
 		// ...
 
 		outputToShuffleboard();
+	}
+
+	@Override
+	public void periodic() {
+		collisionDetected = false;
+
+		var currentWorldLinearAccelX = navX.getWorldLinearAccelX();
+		var currentJerkX = currentWorldLinearAccelX - lastWorldLinearAccelX;
+		lastWorldLinearAccelX = currentWorldLinearAccelX;
+
+		var currentWorldLinearAccelY = navX.getWorldLinearAccelY();
+		var currentJerkY = currentWorldLinearAccelY - lastWorldLinearAccelY;
+		lastWorldLinearAccelY = currentWorldLinearAccelY;
+
+		if ((Math.abs(currentJerkX) > Constants.GyroConstants.collisionThresholdDeltaG)
+				|| (Math.abs(currentJerkY) > Constants.GyroConstants.collisionThresholdDeltaG))
+			collisionDetected = true;
 	}
 
 	@Override
@@ -109,19 +126,6 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 
 			@Override
 			public void onLoop(double timestamp) {
-				collisionDetected = false;
-
-				var currentWorldLinearAccelX = navX.getWorldLinearAccelX();
-				var currentJerkX = currentWorldLinearAccelX - lastWorldLinearAccelX;
-				lastWorldLinearAccelX = currentWorldLinearAccelX;
-
-				var currentWorldLinearAccelY = navX.getWorldLinearAccelY();
-				var currentJerkY = currentWorldLinearAccelY - lastWorldLinearAccelY;
-				lastWorldLinearAccelY = currentWorldLinearAccelY;
-
-				if ((Math.abs(currentJerkX) > Constants.GyroConstants.collisionThresholdDeltaG)
-						|| (Math.abs(currentJerkY) > Constants.GyroConstants.collisionThresholdDeltaG))
-					collisionDetected = true;
 			}
 
 			@Override

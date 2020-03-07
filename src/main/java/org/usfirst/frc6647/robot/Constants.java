@@ -18,12 +18,37 @@ package org.usfirst.frc6647.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+	public class DriveConstants {
+		// TODO: Set these accordingly.
+		public static final double trackWidthMeters = 0.6647246510483854;
+
+		private static final double wheelDiameterMeters = 0.1524;
+		private static final int encoderCPR = 2048;
+		public static final double encoderDistancePerPulse = (wheelDiameterMeters * Math.PI) / (double) encoderCPR;
+
+		public static final double ksVolts = 0.836;
+		public static final double kvVoltSecondsPerMeter = 3.16;
+		public static final double kaVoltSecondsSquaredPerMeter = 0.416;
+
+		public static final double kPDriveVel = 47.7;
+	}
+
+	public class AutoConstants {
+
+	}
+	
 	public class GyroConstants {
-		public static final double collisionThresholdDeltaG = 0.5f;
+		public static final double collisionThresholdDeltaG = 0.25f;
 	}
 
 	public class ShooterConstants {
 		public static final float tolerance = 30.0f;
+
+		// TODO: Set these accordingly.
+		public static final double initiationLineRPM = 0;
+		public static final double trenchRPM = 0;
+		public static final double behindTrenchRPM = 0;
+		public static final double cursedRPM = 0;
 	}
 
 	public class Aim {

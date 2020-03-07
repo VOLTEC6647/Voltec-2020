@@ -1,7 +1,5 @@
 package org.usfirst.frc6647.subsystems;
 
-import java.util.function.Function;
-
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -16,7 +14,6 @@ import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperServo;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -34,10 +31,6 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	private HyperDoubleSolenoid stop;
 	/** {@link HyperSparkMax} used by this {@link Shooter subsystem}. */
 	private HyperSparkMax shooter;
-
-	/** Formula to calculate distance from target. */
-	private Function<Double, Double> formula = ty -> ((3.8883 * Math.pow(10, 6)) * Math.pow((ty + 31.2852), -4.9682)
-			+ 113.358) / (ty + 31.2852) - 0.978398;
 
 	/** Stores current {@link #setpoint speed goal}. */
 	private double setpoint;
@@ -83,18 +76,27 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	}
 
 	/**
-	 * Sets the {@link Shooter}'s {@link CANSparkMax motor} to the {@link #calculate
-	 * calculated} speed, and updates both the setpoint {@link #layout layout} and
-	 * {@link #setpoint variable}.
+	 * Sets the {@link Shooter}'s {@link #shooter motor} to the specified rpm, and
+	 * updates both the setpoint {@link #layout layout} and {@link #setpoint
+	 * variable}.
+	 * 
+	 * @param rpm The rpm at which to turn the {@link #shooter}
 	 */
-	public void setMotor() {
-		setpoint = calculate();
-		shooter.getPIDController().setReference(setpoint, ControlType.kVelocity);
+	public void setMotor(double rpm) {
+		setpoint = rpm;
+		shooter.getPIDController().setReference(rpm, ControlType.kVelocity);
 	}
 
+	/**
+	 * Sets the {@link Shooter}'s {@link #shooter motor} to the specified
+	 * percentage.
+	 * 
+	 * @param percentage
+	 */
 	public void setMotorPercentage(double percentage) {
 		shooter.set(percentage);
 	}
+
 	/**
 	 * Stops the {@link #shooter shooter motor} dead in its tracks.
 	 */
@@ -138,34 +140,5 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 */
 	public double getSetpoint() {
 		return setpoint;
-	}
-
-	/**
-	 * Calculates the necessary speed for the {@link Shooter}'s {@link CANSparkMax
-	 * motor} depending on the distance from the target.
-	 * 
-	 * @return The calculated speed value
-	 */
-	private double calculate() {
-		var ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-		layout.add("ty", ty);
-
-		var distance = formula.apply(ty);
-		layout.add("target_distance", distance);
-
-		var speed = 200;
-
-		// TODO Actually modify the speed value.
-		if (distance < 3) {
-
-		} else if (distance < 6) {
-
-		} else if (distance < 9) {
-
-		} else {
-
-		}
-
-		return speed;
 	}
 }
