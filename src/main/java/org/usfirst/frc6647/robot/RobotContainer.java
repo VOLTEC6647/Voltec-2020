@@ -92,6 +92,7 @@ public class RobotContainer extends LoopContainer {
 
 		// Register each instantiated JController object in the joysticks HashMap.
 		registerJoystick(driver1, "driver1");
+		registerJoystick(driver2, "driver2");
 	}
 
 	@Override
