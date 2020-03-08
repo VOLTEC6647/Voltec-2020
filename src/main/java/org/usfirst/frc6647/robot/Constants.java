@@ -34,11 +34,15 @@ public final class Constants {
 	}
 
 	public class AutoConstants {
-
 	}
-	
+
 	public class GyroConstants {
 		public static final double collisionThresholdDeltaG = 0.25f;
+	}
+
+	public class TurretConstants {
+		public static final double rotationsPerTick = 1;
+		public static final float tolerance = 0.01f;
 	}
 
 	public class ShooterConstants {

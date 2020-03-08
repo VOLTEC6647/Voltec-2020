@@ -8,6 +8,7 @@ import com.ctre.phoenix.music.Orchestra;
 
 import org.usfirst.frc6647.robot.Robot;
 import org.usfirst.frc6647.robot.RobotContainer;
+import org.usfirst.lib6647.control.CheesyDrive;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -39,6 +40,9 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
 	/** {@link HyperSolenoid} used by this {@link Chassis subsystem}. */
 	private HyperDoubleSolenoid reduction;
+
+	/** Instance of a {@link CheesyDrive}, mostly for testing. */
+	private CheesyDrive drive;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
@@ -74,24 +78,25 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 		reduction = getDoubleSolenoid("reduction");
 
+		drive = new CheesyDrive();
+
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
 		// ...
-
-		outputToShuffleboard();
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
 			layout.add(frontLeft).withWidget(BuiltInWidgets.kSpeedController);
 			layout.add(frontRight).withWidget(BuiltInWidgets.kSpeedController);
 			layout.add(backLeft).withWidget(BuiltInWidgets.kSpeedController);
 			layout.add(backRight).withWidget(BuiltInWidgets.kSpeedController);
 
-			// layout.addNumber("frontLeftVoltage", frontLeft::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
-			// layout.addNumber("frontRightVoltage", frontRight::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
-			// layout.addNumber("backLeftVoltage", backLeft::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
-			// layout.addNumber("backRightVoltage", backRight::getMotorOutputVoltage).withWidget(BuiltInWidgets.kGraph);
+			layout.addBoolean("compressorOn", compressor::enabled).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("orchestraPlaying", orchestra::isPlaying).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("forwardReduction", reduction::getForward).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("reverseReduction", reduction::getReverse).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("headingFlipped", this::getHeading);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -128,6 +133,15 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	 */
 	public void toggleReduction() {
 		reduction.toggle();
+	}
+
+	/**
+	 * Gets whether or not the {@link Robot}'s 'front' is flipped.
+	 * 
+	 * @return The current state of the {@link Robot}'s {@link #inverted heading}
+	 */
+	public boolean getHeading() {
+		return inverted;
 	}
 
 	/**
@@ -172,14 +186,29 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 					return;
 
 				synchronized (Chassis.this) {
-					arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
+					// arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
+					drive.cheesyDrive(joystick.getY(Hand.kLeft) * (inverted ? -1 : 1),
+							joystick.getX(Hand.kRight) * (inverted ? -1 : 1), joystick.get("L1", "LBumper").get(),
+							reduction.getForward(), (left, right) -> {
+								frontLeft.set(left);
+								backLeft.set(left);
+
+								frontRight.set(right);
+								backRight.set(right);
+							});
 				}
 			}
 
 			@Override
 			public void onStop(double timestamp) {
 				compressor.stop();
-				arcadeDrive(0, 0);
+
+				// arcadeDrive(0, 0);
+				frontLeft.stopMotor();
+				frontRight.stopMotor();
+				backLeft.stopMotor();
+				backRight.stopMotor();
+
 				System.out.println("Stopped arcade drive at: " + timestamp + ".");
 			}
 

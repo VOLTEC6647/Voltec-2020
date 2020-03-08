@@ -8,6 +8,7 @@ import org.usfirst.frc6647.subsystems.Gyro;
 import org.usfirst.frc6647.subsystems.Indexer;
 import org.usfirst.frc6647.subsystems.Intake;
 import org.usfirst.frc6647.subsystems.Shooter;
+import org.usfirst.frc6647.subsystems.Turret;
 import org.usfirst.frc6647.subsystems.Vision;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopContainer;
@@ -17,6 +18,7 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
@@ -34,6 +36,8 @@ public class RobotContainer extends LoopContainer {
 	private Gyro gyro;
 	/** The {@link Robot}'s {@link Intake} instance. */
 	private Intake intake;
+	/** The {@link Robot}'s {@link Turret} instance. */
+	private Turret turret;
 	/** The {@link Robot}'s {@link Shooter} instance. */
 	private Shooter shooter;
 	/** The {@link Robot}'s {@link Indexer} instance. */
@@ -49,13 +53,14 @@ public class RobotContainer extends LoopContainer {
 		chassis = new Chassis();
 		gyro = new Gyro();
 		intake = new Intake();
+		turret = new Turret();
 		shooter = new Shooter();
 		indexer = new Indexer();
 		elevator = new Elevator();
 		vision = new Vision();
 
 		// Register each initialized Subsystem.
-		registerSubsystems(chassis, gyro, intake, shooter, indexer, elevator);
+		registerSubsystems(chassis, gyro, intake, turret, shooter, indexer, elevator, vision);
 	}
 
 	@Override
@@ -69,25 +74,33 @@ public class RobotContainer extends LoopContainer {
 		if (driver1.getName().equals("Wireless Controller")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 5);
+		} else if (driver1.getName().equals("Sony Computer Entertainment Wireless Controller")) {
+			driver1.setXY(Hand.kLeft, 0, 1);
+			driver1.setXY(Hand.kRight, 3, 4);
 		} else if (driver1.getName().equals("Generic   USB  Joystick")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 4);
 		} else if (driver1.getName().toLowerCase().contains("xbox")
 				|| driver1.getName().equals("Controller (Gamepad F310)")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
-			driver1.setXY(Hand.kLeft, 4, 5);
+			driver1.setXY(Hand.kRight, 4, 5);
 		}
+
+		System.out.printf("Found: '%s'!\n", driver2.getName());
 
 		if (driver2.getName().equals("Wireless Controller")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 2, 5);
+		} else if (driver2.getName().equals("Sony Computer Entertainment Wireless Controller")) {
+			driver2.setXY(Hand.kLeft, 0, 1);
+			driver2.setXY(Hand.kRight, 3, 4);
 		} else if (driver2.getName().equals("Generic   USB  Joystick")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 2, 4);
 		} else if (driver2.getName().toLowerCase().contains("xbox")
 				|| driver2.getName().equals("Controller (Gamepad F310)")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
-			driver2.setXY(Hand.kLeft, 4, 5);
+			driver2.setXY(Hand.kRight, 4, 5);
 		}
 
 		// Register each instantiated JController object in the joysticks HashMap.
@@ -133,6 +146,12 @@ public class RobotContainer extends LoopContainer {
 		var climberLeft = new StartEndCommand(() -> elevator.setWheelSpeed(-1), elevatorStop);
 		// ...
 
+		// Turret commands.
+		FunctionalCommand zeroTurret = new FunctionalCommand(() -> turret.reset(Rotation2d.fromDegrees(0)),
+				() -> turret.setMotor(-0.4), interrupted -> turret.reset(Rotation2d.fromDegrees(0)),
+				turret::getReverseLimitSwitch, turret);
+		// ...
+
 		// Shooter commands.
 		Runnable startFeeding = () -> {
 			if (!shooter.onTarget())
@@ -140,7 +159,7 @@ public class RobotContainer extends LoopContainer {
 			indexer.setIndexerSpeed(1, 1);
 			indexer.setPulleySpeed(1, 1);
 		};
-		Consumer<Boolean> stopFeeding = interrupted -> { // Wish this was possible in Leauge
+		Consumer<Boolean> stopFeeding = interrupted -> { // Wish this was possible in League.
 			indexer.stopIndexer();
 			indexer.stopPulley();
 			shooter.stopMotor();
@@ -169,7 +188,7 @@ public class RobotContainer extends LoopContainer {
 		try {
 			// Driver 1 commands.
 			driver1.get("Options", "Start").whenPressed(chassis::prepareSong);
-			driver1.get("Touchpad", "Select").whenPressed(chassis::toggleSong);
+			driver1.get("Touchpad", "Select", "PS4Btn").whenPressed(chassis::toggleSong);
 
 			driver1.get("L2", "LTrigger").whileHeld(toggleReduction);
 			driver1.get("R2", "RTrigger").whileHeld(toggleHeading);
@@ -193,7 +212,6 @@ public class RobotContainer extends LoopContainer {
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);
-			System.exit(1);
 		}
 	}
 }

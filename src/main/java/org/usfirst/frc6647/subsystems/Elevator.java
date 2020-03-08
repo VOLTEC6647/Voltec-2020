@@ -33,16 +33,13 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 		elevator = getSpark("elevator");
 		elevatorWheel = getSpark("elevatorWheel");
 		// ...
-
-		outputToShuffleboard();
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
-			layout.addNumber("elevatorCurrent", elevator::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
-			// layout.add(elevator).withWidget(BuiltInWidgets.kSpeedController);
-			// layout.add(elevatorWheel).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(elevator).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(elevatorWheel).withWidget(BuiltInWidgets.kSpeedController);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());

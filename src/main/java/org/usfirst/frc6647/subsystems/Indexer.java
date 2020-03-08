@@ -1,7 +1,6 @@
 package org.usfirst.frc6647.subsystems;
 
 import com.revrobotics.ControlType;
-import com.revrobotics.EncoderType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
@@ -38,19 +37,16 @@ public class Indexer extends SuperSubsystem implements SuperSparkMax {
 		pulleyFront = getSpark("pulleyFront");
 		pulleyBack = getSpark("pulleyBack");
 		// ...
-
-		outputToShuffleboard();
-		indexerLeft.getEncoder(EncoderType.kNoSensor, 0);
-		indexerRight.getEncoder(EncoderType.kNoSensor, 0);
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
-			layout.addNumber("indexerLeftCurrent", indexerLeft::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
-			layout.addNumber("indexerRightCurrent", indexerRight::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
-			layout.addNumber("pulleyFrontCurrent", pulleyFront::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
-			layout.addNumber("pulleyBackCurrent", pulleyBack::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
+			layout.add(indexerLeft).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(indexerRight).withWidget(BuiltInWidgets.kSpeedController);
+
+			layout.add(pulleyFront).withWidget(BuiltInWidgets.kSpeedController);
+			layout.add(pulleyBack).withWidget(BuiltInWidgets.kSpeedController);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());

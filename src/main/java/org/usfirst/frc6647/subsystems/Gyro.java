@@ -14,7 +14,6 @@ import org.usfirst.lib6647.subsystem.supercomponents.SuperAHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -56,11 +55,9 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 			joystick.setRumble(RumbleType.kRightRumble, 0.0);
 		};
 
-		var collision = new Trigger(this::get); // Triggers when a collision is detected.
-		collision.whenActive(new InstantCommand(setRumble, this).withTimeout(5).andThen(stopRumble, this));
+		var collision = new Trigger(this::didCollide); // Triggers when a collision is detected.
+		collision.whenActive(setRumble, this).whenInactive(stopRumble, this);
 		// ...
-
-		outputToShuffleboard();
 	}
 
 	@Override
@@ -81,12 +78,12 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
 			layout.add(navX).withWidget(BuiltInWidgets.kGyro);
 			layout.addNumber("gyroYaw", navX::getYaw);
 			layout.addNumber("gyroHeading", navX::getHeading);
-			layout.addBoolean("collisionDetected", this::get).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("collisionDetected", this::didCollide).withWidget(BuiltInWidgets.kBooleanBox);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -101,7 +98,7 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 	 * 
 	 * @return Whether or not a collision was detected
 	 */
-	public boolean get() {
+	public boolean didCollide() {
 		return collisionDetected;
 	}
 

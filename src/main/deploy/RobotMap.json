@@ -66,7 +66,7 @@
 					}
 				},
 				"config": {
-					"loopRamp":{
+					"loopRamp": {
 						"openloopRamp": 2
 					}
 				}
@@ -84,11 +84,11 @@
 						"sensorPos": 0
 					}
 				},
-					"config":{
-						"loopRamp":{
-							"openloopRamp": 2
-						}
+				"config": {
+					"loopRamp": {
+						"openloopRamp": 2
 					}
+				}
 			}
 		]
 	},
@@ -116,10 +116,43 @@
 				"port": 9,
 				"type": "Brushed",
 				"idleMode": "Coast",
+				"encoder": {
+					"type": "NoSensor",
+					"countsPerRev": 0
+				},
 				"pid": {
 					"slot0": {
 						"p": 5,
 						"d": 40,
+						"outputMin": -1,
+						"outputMax": 1
+					}
+				}
+			}
+		]
+	},
+	"turret": {
+		"digitalInputs": [
+			{
+				"name": "limitReverse",
+				"channel": 0
+			},
+			{
+				"name": "limitForward",
+				"channel": 1
+			}
+		],
+		"sparks": [
+			{
+				"name": "turret",
+				"port": 3,
+				"type": "Brushless",
+				"idleMode": "Brake",
+				"softLimitForward": 300,
+				"softLimitBackward": -300,
+				"pid": {
+					"slot0": {
+						"p": 0.5,
 						"outputMin": -1,
 						"outputMax": 1
 					}
@@ -164,8 +197,12 @@
 				"name": "indexerLeft",
 				"port": 7,
 				"inverted": true,
-				"idleMode": "Brake",
 				"type": "Brushed",
+				"idleMode": "Brake",
+				"encoder": {
+					"type": "NoSensor",
+					"countsPerRev": 0
+				},
 				"pid": {
 					"slot0": {
 						"p": 0.5,
@@ -176,8 +213,12 @@
 			{
 				"name": "indexerRight",
 				"port": 8,
-				"idleMode": "Brake",
 				"type": "Brushed",
+				"idleMode": "Brake",
+				"encoder": {
+					"type": "NoSensor",
+					"countsPerRev": 0
+				},
 				"pid": {
 					"slot0": {
 						"p": 0.5,
@@ -205,7 +246,6 @@
 				"pid": {
 					"slot0": {
 						"p": 0.5,
-						"i":0,
 						"d": 40
 					}
 				}

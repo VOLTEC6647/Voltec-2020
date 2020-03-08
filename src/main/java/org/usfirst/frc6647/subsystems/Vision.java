@@ -18,12 +18,10 @@ public class Vision extends SuperSubsystem {
 		super("vision");
 
 		limelight = new LimelightCamera("limelight");
-
-		outputToShuffleboard();
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
 			layout.addBoolean("isOnline", limelight::isConnected).withWidget(BuiltInWidgets.kBooleanBox);
 			layout.addBoolean("targetFound", limelight::isTargetFound).withWidget(BuiltInWidgets.kBooleanBox);

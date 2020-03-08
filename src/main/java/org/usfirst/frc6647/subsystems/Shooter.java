@@ -55,14 +55,12 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 
 		shooter = getSpark("shooter");
 		// ...
-
-		outputToShuffleboard();
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
-			layout.addNumber("shooterRPM", shooter.getEncoder()::getVelocity).withWidget(BuiltInWidgets.kGraph);
+			layout.addNumber("shooterRPM", shooter.getEncoder()::getVelocity);
 			layout.addNumber("hoodAngle", hood::getAngle);
 			layout.addNumber("setpoint", this::getSetpoint);
 			layout.addBoolean("onTarget", this::onTarget).withWidget(BuiltInWidgets.kBooleanBox);

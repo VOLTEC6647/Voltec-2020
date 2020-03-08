@@ -1,7 +1,6 @@
 package org.usfirst.frc6647.subsystems;
 
 import com.revrobotics.ControlType;
-import com.revrobotics.EncoderType;
 
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
@@ -37,19 +36,18 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 
 		// Additional initialiation & configuration.
 		intake = getSpark("intake");
-		intake.getEncoder(EncoderType.kNoSensor, 0);
 
 		intakePiston = getDoubleSolenoid("intakePiston");
 		// ...
-
-		outputToShuffleboard();
 	}
 
 	@Override
-	protected void outputToShuffleboard() {
+	public void outputToShuffleboard() {
 		try {
-			// layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
-			layout.addNumber("intakeVoltage", intake::getOutputCurrent).withWidget(BuiltInWidgets.kGraph);
+			layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
+
+			layout.addBoolean("intakeForward", intakePiston::getForward).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("intakeReverse", intakePiston::getReverse).withWidget(BuiltInWidgets.kBooleanBox);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
