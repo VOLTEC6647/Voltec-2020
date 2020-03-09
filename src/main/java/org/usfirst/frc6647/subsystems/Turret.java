@@ -60,10 +60,10 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 		layout.addNumber("angle", () -> getAngle().getDegrees());
 		layout.addString("angleFull", () -> getAngle().toString());
 
-		layout.addNumber("setpoint", this::getSetpoint);
+		layout.add(limitForward);
+		layout.add(limitReverse);
 
-		layout.addBoolean("forwardLimit", this::getForwardLimitSwitch).withWidget(BuiltInWidgets.kBooleanBox);
-		layout.addBoolean("reverseLimit", this::getReverseLimitSwitch).withWidget(BuiltInWidgets.kBooleanBox);
+		layout.addNumber("setpoint", this::getSetpoint);
 		layout.addBoolean("onTarget", this::onTarget).withWidget(BuiltInWidgets.kBooleanBox);
 	}
 

@@ -110,24 +110,12 @@
 				"reverseChannel": 4
 			}
 		],
-		"sparks": [
+		"falcons": [
 			{
 				"name": "intake",
-				"port": 9,
-				"type": "Brushed",
-				"idleMode": "Coast",
-				"encoder": {
-					"type": "NoSensor",
-					"countsPerRev": 0
-				},
-				"pid": {
-					"slot0": {
-						"p": 5,
-						"d": 40,
-						"outputMin": -1,
-						"outputMax": 1
-					}
-				}
+				"port": 5,
+				"limiter": 1,
+				"neutralMode": "Brake"
 			}
 		]
 	},
@@ -257,12 +245,6 @@
 			{
 				"name": "elevator",
 				"port": 5,
-				"idleMode": "Brake",
-				"type": "Brushless"
-			},
-			{
-				"name": "elevatorWheel",
-				"port": 6,
 				"idleMode": "Brake",
 				"type": "Brushless"
 			}

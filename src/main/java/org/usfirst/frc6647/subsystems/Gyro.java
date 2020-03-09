@@ -61,23 +61,6 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 	}
 
 	@Override
-	public void periodic() {
-		collisionDetected = false;
-
-		var currentWorldLinearAccelX = navX.getWorldLinearAccelX();
-		var currentJerkX = currentWorldLinearAccelX - lastWorldLinearAccelX;
-		lastWorldLinearAccelX = currentWorldLinearAccelX;
-
-		var currentWorldLinearAccelY = navX.getWorldLinearAccelY();
-		var currentJerkY = currentWorldLinearAccelY - lastWorldLinearAccelY;
-		lastWorldLinearAccelY = currentWorldLinearAccelY;
-
-		if ((Math.abs(currentJerkX) > Constants.GyroConstants.collisionThresholdDeltaG)
-				|| (Math.abs(currentJerkY) > Constants.GyroConstants.collisionThresholdDeltaG))
-			collisionDetected = true;
-	}
-
-	@Override
 	public void outputToShuffleboard() {
 		try {
 			layout.add(navX).withWidget(BuiltInWidgets.kGyro);
@@ -123,6 +106,19 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 
 			@Override
 			public void onLoop(double timestamp) {
+				collisionDetected = false;
+
+				var currentWorldLinearAccelX = navX.getWorldLinearAccelX();
+				var currentJerkX = currentWorldLinearAccelX - lastWorldLinearAccelX;
+				lastWorldLinearAccelX = currentWorldLinearAccelX;
+
+				var currentWorldLinearAccelY = navX.getWorldLinearAccelY();
+				var currentJerkY = currentWorldLinearAccelY - lastWorldLinearAccelY;
+				lastWorldLinearAccelY = currentWorldLinearAccelY;
+
+				if ((Math.abs(currentJerkX) > Constants.GyroConstants.collisionThresholdDeltaG)
+						|| (Math.abs(currentJerkY) > Constants.GyroConstants.collisionThresholdDeltaG))
+					collisionDetected = true;
 			}
 
 			@Override

@@ -74,9 +74,14 @@ public class RobotContainer extends LoopContainer {
 		if (driver1.getName().equals("Wireless Controller")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 5);
-		} else if (driver1.getName().equals("Sony Computer Entertainment Wireless Controller")) {
+		} else if (driver1.getName().equals("Sony Computer Entertainment Wireless Controller")
+				|| driver1.getName().equals("DragonRise Inc.   Generic   USB  Joystick")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 3, 4);
+		} else if (driver1.getName().equals("Logitech Extreme 3D")) {
+			driver1.setAxisTolerance(0.01);
+			driver1.setXY(Hand.kLeft, 2, 1);
+			driver1.setXY(Hand.kRight, 0, 3);
 		} else if (driver1.getName().equals("Generic   USB  Joystick")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 4);
@@ -91,9 +96,14 @@ public class RobotContainer extends LoopContainer {
 		if (driver2.getName().equals("Wireless Controller")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 2, 5);
-		} else if (driver2.getName().equals("Sony Computer Entertainment Wireless Controller")) {
+		} else if (driver2.getName().equals("Sony Computer Entertainment Wireless Controller")
+				|| driver2.getName().equals("DragonRise Inc.   Generic   USB  Joystick")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 3, 4);
+		} else if (driver2.getName().equals("Logitech Extreme 3D")) {
+			driver2.setAxisTolerance(0.01);
+			driver2.setXY(Hand.kLeft, 2, 1);
+			driver2.setXY(Hand.kRight, 0, 3);
 		} else if (driver2.getName().equals("Generic   USB  Joystick")) {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 2, 4);
@@ -125,7 +135,7 @@ public class RobotContainer extends LoopContainer {
 			indexer.stopPulley();
 		};
 		Runnable ballIn = () -> {
-			intake.setMotorSpeed(1);
+			intake.setMotorSpeed(0.2);
 			indexer.setIndexerSpeed(1, 1);
 			indexer.setPulleySpeed(-1, -1);
 		};
@@ -134,16 +144,8 @@ public class RobotContainer extends LoopContainer {
 		// ...
 
 		// Elevator commands.
-		Runnable elevatorStop = () -> {
-			elevator.setElevatorSpeed(0);
-			elevator.setWheelSpeed(0);
-		};
-
-		var climberUp = new StartEndCommand(() -> elevator.setElevatorSpeed(1), elevatorStop);
-		var climberDown = new StartEndCommand(() -> elevator.setElevatorSpeed(-1), elevatorStop);
-
-		var climberRight = new StartEndCommand(() -> elevator.setWheelSpeed(1), elevatorStop);
-		var climberLeft = new StartEndCommand(() -> elevator.setWheelSpeed(-1), elevatorStop);
+		var climberUp = new StartEndCommand(() -> elevator.setElevatorSpeed(1), elevator::stopElevatorMotor);
+		var climberDown = new StartEndCommand(() -> elevator.setElevatorSpeed(-1), elevator::stopElevatorMotor);
 		// ...
 
 		// Turret commands.
@@ -185,30 +187,29 @@ public class RobotContainer extends LoopContainer {
 				vision);
 		// ...
 
-		try {
-			// Driver 1 commands.
-			driver1.get("Options", "Start").whenPressed(chassis::prepareSong);
-			driver1.get("Touchpad", "Select", "PS4Btn").whenPressed(chassis::toggleSong);
+		try { // Driver 1 commands.
+			driver1.get("Options", "Start", "Base12").whenPressed(chassis::prepareSong);
+			driver1.get("Touchpad", "Select", "PS4Btn", "Base11").whenPressed(chassis::toggleSong);
 
-			driver1.get("L2", "LTrigger").whileHeld(toggleReduction);
-			driver1.get("R2", "RTrigger").whileHeld(toggleHeading);
-			// ...
+			driver1.get("L2", "LTrigger", "Trigger").whileHeld(toggleReduction);
+			driver1.get("R2", "RTrigger", "Thumb6").whileHeld(toggleHeading);
+			driver1.get("X", "Btn3", "Thumb5").whenPressed(chassis::toggleCheesy);
+		} catch (NullPointerException e) {
+			System.out.println(e.getLocalizedMessage());
+			DriverStation.reportError(e.getLocalizedMessage(), false);
+		}
 
-			// Driver 2 commands.
+		try { // Driver 2 commands.
 			driver2.get("L2", "LTrigger").whileHeld(toggleIntake);
 			driver2.get("L1", "LBumper").whileHeld(ballIn).whenReleased(ballStop);
 
-			driver2.get("X").whileHeld(initiationLineShoot);
-			driver2.get("Circle").whileHeld(trenchShoot);
-			driver2.get("Square").whileHeld(behindTrenchShoot);
-			driver2.get("Triangle").whileHeld(cursedShoot);
+			driver2.get("X", "Btn3").whileHeld(initiationLineShoot);
+			driver2.get("Circle", "Btn2").whileHeld(trenchShoot);
+			driver2.get("Square", "Btn4").whileHeld(behindTrenchShoot);
+			driver2.get("Triangle", "Btn1").whileHeld(cursedShoot);
 
 			driver2.get("dPadUp").whileHeld(climberUp);
 			driver2.get("dPadDown").whileHeld(climberDown);
-			driver2.get("dPadLeft").whileHeld(climberLeft);
-			driver2.get("dPadRight").whileHeld(climberRight);
-			// ...
-
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);

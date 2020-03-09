@@ -1,13 +1,11 @@
 package org.usfirst.frc6647.subsystems;
 
-import com.revrobotics.ControlType;
-
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperDoubleSolenoid;
-import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
+import org.usfirst.lib6647.subsystem.hypercomponents.HyperFalcon;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperDoubleSolenoid;
-import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
+import org.usfirst.lib6647.subsystem.supercomponents.SuperFalcon;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -15,9 +13,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 /**
  * Ball {@link Intake} {@link SuperSubsystem} implementation.
  */
-public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, SuperSparkMax {
-	/** Main {@link HyperSparkMax} used by this {@link Intake subsystem}. */
-	private HyperSparkMax intake;
+public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, SuperFalcon {
+	/** Main {@link HyperFalcon} used by this {@link Intake subsystem}. */
+	private HyperFalcon intake;
 	/** {@link HyperDoubleSolenoid} used by this {@link Intake subsystem}. */
 	private HyperDoubleSolenoid intakePiston;
 
@@ -32,10 +30,10 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 		// inherited from the SuperSubsystem class, while the second argument is simply
 		// this Subsystem's name.
 		initDoubleSolenoids(robotMap, getName());
-		initSparks(robotMap, getName());
+		initFalcons(robotMap, getName());
 
 		// Additional initialiation & configuration.
-		intake = getSpark("intake");
+		intake = getFalcon("intake");
 
 		intakePiston = getDoubleSolenoid("intakePiston");
 		// ...
@@ -45,9 +43,7 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 	public void outputToShuffleboard() {
 		try {
 			layout.add(intake).withWidget(BuiltInWidgets.kSpeedController);
-
-			layout.addBoolean("intakeForward", intakePiston::getForward).withWidget(BuiltInWidgets.kBooleanBox);
-			layout.addBoolean("intakeReverse", intakePiston::getReverse).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.add(intakePiston);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -55,17 +51,6 @@ public class Intake extends SuperSubsystem implements SuperDoubleSolenoid, Super
 			System.out.println(error);
 			DriverStation.reportWarning(error, false);
 		}
-	}
-
-	/**
-	 * Set the {@link Intake}'s main {@link #intake motor}'s {@link #intakePID PID
-	 * Controller} to a specific voltage, in {@link ControlType#kCurrent}.
-	 * 
-	 * @param voltage The voltage at which to set the {@link #intake motor}'s
-	 *                {@link #intakePID PID Controller} to
-	 */
-	public void setMotorVoltage(double voltage) {
-		intake.getPIDController().setReference(voltage, ControlType.kCurrent);
 	}
 
 	/**

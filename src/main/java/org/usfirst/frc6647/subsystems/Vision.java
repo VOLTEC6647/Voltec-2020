@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
 public class Vision extends SuperSubsystem {
 
-	// TODO: Comment this properly.
+	// TODO: Perhaps move this to Turret subsystem?
 
 	private LimelightCamera limelight;
 

@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
  * {@link SuperSubsystem} implementation for our {@link Elevator}.
  */
 public class Elevator extends SuperSubsystem implements SuperSparkMax {
-	/** {@link HyperSparkMax} instances used by this {@link Elevator subsystem}. */
-	private HyperSparkMax elevator, elevatorWheel;
+	/** {@link HyperSparkMax} instance used by this {@link Elevator subsystem}. */
+	private HyperSparkMax elevator;
 
 	/**
 	 * Should only need to create a single of instance of {@link Elevator this
@@ -31,7 +31,6 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 
 		// Additional initialiation & configuration.
 		elevator = getSpark("elevator");
-		elevatorWheel = getSpark("elevatorWheel");
 		// ...
 	}
 
@@ -39,7 +38,6 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 	public void outputToShuffleboard() {
 		try {
 			layout.add(elevator).withWidget(BuiltInWidgets.kSpeedController);
-			layout.add(elevatorWheel).withWidget(BuiltInWidgets.kSpeedController);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -68,11 +66,9 @@ public class Elevator extends SuperSubsystem implements SuperSparkMax {
 	}
 
 	/**
-	 * Method to set the {@link #elevatorWheel}'s speed value.
-	 * 
-	 * @param speed The speed at which to set the {@link #elevatorWheel motor}
+	 * Stops the {@link Elevator}'s {@link #elevator motor} dead in its tracks.
 	 */
-	public void setWheelSpeed(double speed) {
-		elevatorWheel.set(speed);
+	public void stopElevatorMotor() {
+		elevator.stopMotor();
 	}
 }

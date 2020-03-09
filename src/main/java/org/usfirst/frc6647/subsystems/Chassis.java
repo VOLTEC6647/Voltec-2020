@@ -43,6 +43,8 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 	/** Instance of a {@link CheesyDrive}, mostly for testing. */
 	private CheesyDrive drive;
+	/** Whether or not to use {@link CheesyDrive}. */
+	private boolean useCheesy = false;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
@@ -92,11 +94,12 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 			layout.add(backLeft).withWidget(BuiltInWidgets.kSpeedController);
 			layout.add(backRight).withWidget(BuiltInWidgets.kSpeedController);
 
-			layout.addBoolean("compressorOn", compressor::enabled).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.add(reduction);
+
+			layout.addBoolean("headingFlipped", this::getHeading).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("cheesyDrive", this::getCheesy).withWidget(BuiltInWidgets.kBooleanBox);
+			layout.addBoolean("compressorOn", compressor::enabled);
 			layout.addBoolean("orchestraPlaying", orchestra::isPlaying).withWidget(BuiltInWidgets.kBooleanBox);
-			layout.addBoolean("forwardReduction", reduction::getForward).withWidget(BuiltInWidgets.kBooleanBox);
-			layout.addBoolean("reverseReduction", reduction::getReverse).withWidget(BuiltInWidgets.kBooleanBox);
-			layout.addBoolean("headingFlipped", this::getHeading);
 		} catch (NullPointerException e) {
 			var error = String.format("[!] COULD NOT OUTPUT SUBSYSTEM '%1$s':\n\t%2$s.", getName(),
 					e.getLocalizedMessage());
@@ -152,6 +155,22 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	}
 
 	/**
+	 * Method to get if the current Drive is set to {@link CheesyDrive}.
+	 * 
+	 * @return Whether or not this {@link Chassis} is using {@link CheesyDrive}.
+	 */
+	public boolean getCheesy() {
+		return useCheesy;
+	}
+
+	/**
+	 * Toggles between using {@link CheesyDrive}.
+	 */
+	public void toggleCheesy() {
+		useCheesy = !useCheesy;
+	}
+
+	/**
 	 * Use {@link HyperFalcon falcons} as an arcade drive.
 	 * 
 	 * @param forward  The drive's forward speed
@@ -163,6 +182,20 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 		frontRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
 		backRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
+	}
+
+	/**
+	 * Use {@link HyperFalcon falcons} as a tank drive.
+	 * 
+	 * @param left  The speed at which to set the left side of the {@link Chassis}
+	 * @param right The speed at which to set the right side of the {@link Chassis}
+	 */
+	public void tankDrive(double left, double right) {
+		frontLeft.setWithRamp(left * (inverted ? -1 : 1));
+		backLeft.setWithRamp(left * (inverted ? -1 : 1));
+
+		frontRight.set(right * (inverted ? -1 : 1));
+		backRight.set(right * (inverted ? -1 : 1));
 	}
 
 	@Override
@@ -186,16 +219,11 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 					return;
 
 				synchronized (Chassis.this) {
-					// arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
-					drive.cheesyDrive(joystick.getY(Hand.kLeft) * (inverted ? -1 : 1),
-							joystick.getX(Hand.kRight) * (inverted ? -1 : 1), joystick.get("L1", "LBumper").get(),
-							reduction.getForward(), (left, right) -> {
-								frontLeft.set(left);
-								backLeft.set(left);
-
-								frontRight.set(right);
-								backRight.set(right);
-							});
+					if (useCheesy)
+						drive.cheesyDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight),
+								joystick.get("L1", "LBumper").get(), reduction.getForward(), Chassis.this::tankDrive);
+					else
+						arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
 				}
 			}
 
@@ -203,9 +231,9 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 			public void onStop(double timestamp) {
 				compressor.stop();
 
-				// arcadeDrive(0, 0);
 				frontLeft.stopMotor();
 				frontRight.stopMotor();
+
 				backLeft.stopMotor();
 				backRight.stopMotor();
 

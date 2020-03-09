@@ -50,9 +50,9 @@ public final class Constants {
 
 		// TODO: Set these accordingly.
 		public static final double initiationLineRPM = 0;
-		public static final double trenchRPM = 0;
-		public static final double behindTrenchRPM = 0;
-		public static final double cursedRPM = 0;
+		public static final double trenchRPM = 100;
+		public static final double behindTrenchRPM = 200;
+		public static final double cursedRPM = 300;
 	}
 
 	public class Aim {
