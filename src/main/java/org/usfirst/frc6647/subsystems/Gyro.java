@@ -46,9 +46,9 @@ public class Gyro extends SuperSubsystem implements SuperAHRS {
 		joystick = Robot.getInstance().getContainer().getJoystick("driver1");
 		navX = getAHRS("navX");
 
-		Runnable setRumble = () -> { // Sets joystick rumble to 0.5.
-			joystick.setRumble(RumbleType.kLeftRumble, 0.5);
-			joystick.setRumble(RumbleType.kRightRumble, 0.5);
+		Runnable setRumble = () -> { // Sets joystick rumble to 1.
+			joystick.setRumble(RumbleType.kLeftRumble, 1);
+			joystick.setRumble(RumbleType.kRightRumble, 1);
 		};
 		Runnable stopRumble = () -> { // Stops joystick rumble.
 			joystick.setRumble(RumbleType.kLeftRumble, 0.0);

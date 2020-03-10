@@ -8,7 +8,6 @@ import com.ctre.phoenix.music.Orchestra;
 
 import org.usfirst.frc6647.robot.Robot;
 import org.usfirst.frc6647.robot.RobotContainer;
-import org.usfirst.lib6647.control.CheesyDrive;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
@@ -40,11 +39,6 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	private HyperFalcon frontLeft, frontRight, backLeft, backRight;
 	/** {@link HyperSolenoid} used by this {@link Chassis subsystem}. */
 	private HyperDoubleSolenoid reduction;
-
-	/** Instance of a {@link CheesyDrive}, mostly for testing. */
-	private CheesyDrive drive;
-	/** Whether or not to use {@link CheesyDrive}. */
-	private boolean useCheesy = false;
 
 	/** {@link Orchestra} object instance, for playing MIDI (.chrp) files. */
 	private Orchestra orchestra;
@@ -80,8 +74,6 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 		reduction = getDoubleSolenoid("reduction");
 
-		drive = new CheesyDrive();
-
 		orchestra = new Orchestra(List.of(frontLeft, backLeft, frontRight, backRight));
 		// ...
 	}
@@ -97,7 +89,6 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 			layout.add(reduction);
 
 			layout.addBoolean("headingFlipped", this::getHeading).withWidget(BuiltInWidgets.kBooleanBox);
-			layout.addBoolean("cheesyDrive", this::getCheesy).withWidget(BuiltInWidgets.kBooleanBox);
 			layout.addBoolean("compressorOn", compressor::enabled);
 			layout.addBoolean("orchestraPlaying", orchestra::isPlaying).withWidget(BuiltInWidgets.kBooleanBox);
 		} catch (NullPointerException e) {
@@ -155,33 +146,17 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 	}
 
 	/**
-	 * Method to get if the current Drive is set to {@link CheesyDrive}.
-	 * 
-	 * @return Whether or not this {@link Chassis} is using {@link CheesyDrive}.
-	 */
-	public boolean getCheesy() {
-		return useCheesy;
-	}
-
-	/**
-	 * Toggles between using {@link CheesyDrive}.
-	 */
-	public void toggleCheesy() {
-		useCheesy = !useCheesy;
-	}
-
-	/**
 	 * Use {@link HyperFalcon falcons} as an arcade drive.
 	 * 
 	 * @param forward  The drive's forward speed
 	 * @param rotation The drive's rotation speed
 	 */
 	public void arcadeDrive(double forward, double rotation) {
-		frontLeft.set(forward * (inverted ? -1 : 1), -rotation * (inverted ? -1 : 1));
-		backLeft.set(forward * (inverted ? -1 : 1), -rotation * (inverted ? -1 : 1));
+		frontLeft.set(forward * (inverted ? -1 : 1), -rotation);
+		backLeft.set(forward * (inverted ? -1 : 1), -rotation);
 
-		frontRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
-		backRight.set(forward * (inverted ? -1 : 1), rotation * (inverted ? -1 : 1));
+		frontRight.set(forward * (inverted ? -1 : 1), rotation);
+		backRight.set(forward * (inverted ? -1 : 1), rotation);
 	}
 
 	/**
@@ -208,7 +183,7 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 			@Override
 			public void onStart(double timestamp) {
 				synchronized (Chassis.this) {
-					compressor.start();
+					// compressor.start();
 					System.out.println("Started arcade drive at: " + timestamp + "!");
 				}
 			}
@@ -219,17 +194,13 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 					return;
 
 				synchronized (Chassis.this) {
-					if (useCheesy)
-						drive.cheesyDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight),
-								joystick.get("L1", "LBumper").get(), reduction.getForward(), Chassis.this::tankDrive);
-					else
-						arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
+					arcadeDrive(joystick.getY(Hand.kLeft), joystick.getX(Hand.kRight));
 				}
 			}
 
 			@Override
 			public void onStop(double timestamp) {
-				compressor.stop();
+				// compressor.stop();
 
 				frontLeft.stopMotor();
 				frontRight.stopMotor();

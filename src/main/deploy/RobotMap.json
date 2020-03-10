@@ -120,16 +120,6 @@
 		]
 	},
 	"turret": {
-		"digitalInputs": [
-			{
-				"name": "limitReverse",
-				"channel": 0
-			},
-			{
-				"name": "limitForward",
-				"channel": 1
-			}
-		],
 		"sparks": [
 			{
 				"name": "turret",

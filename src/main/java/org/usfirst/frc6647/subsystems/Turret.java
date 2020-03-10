@@ -9,10 +9,8 @@ import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopType;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
-import org.usfirst.lib6647.subsystem.supercomponents.SuperDigitalInput;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
@@ -20,12 +18,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
  * {@link SuperSubsystem} implementation of a {@link Turret}, using a Limelight
  * camera to auto-aim.
  */
-public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSparkMax {
+public class Turret extends SuperSubsystem implements SuperSparkMax {
 	/** {@link HyperSparkMax} instance used by the {@link Turret}. */
 	private HyperSparkMax turret;
-
-	/** This {@link Turret}'s {@link DigitalInput limit switches}. */
-	private DigitalInput limitReverse, limitForward;
 
 	/** Stores current {@link #setpoint position goal}. */
 	private double setpoint;
@@ -42,14 +37,10 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 		// All SuperComponents must be initialized like this. The 'robotMap' Object is
 		// inherited from the SuperSubsystem class, while the second argument is simply
 		// this Subsystem's name.
-		initDigitalInputs(robotMap, getName());
 		initSparks(robotMap, getName());
 
 		// Additional initialiation & configuration.
 		turret = getSpark("turret");
-
-		limitReverse = getDigitalInput("limitReverse");
-		limitForward = getDigitalInput("limitForward");
 		// ...
 	}
 
@@ -59,9 +50,6 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 
 		layout.addNumber("angle", () -> getAngle().getDegrees());
 		layout.addString("angleFull", () -> getAngle().toString());
-
-		layout.add(limitForward);
-		layout.add(limitReverse);
 
 		layout.addNumber("setpoint", this::getSetpoint);
 		layout.addBoolean("onTarget", this::onTarget).withWidget(BuiltInWidgets.kBooleanBox);
@@ -113,26 +101,6 @@ public class Turret extends SuperSubsystem implements SuperDigitalInput, SuperSp
 	public Rotation2d getAngle() {
 		return new Rotation2d(
 				Constants.TurretConstants.rotationsPerTick * turret.getEncoder().getPosition() * 2 * Math.PI);
-	}
-
-	/**
-	 * Gets the value of the {@link Turret}'s {@link #limitForward forward limit
-	 * switch}.
-	 * 
-	 * @return The value of the {@link #limitForward forward limit switch}
-	 */
-	public boolean getForwardLimitSwitch() {
-		return limitForward.get();
-	}
-
-	/**
-	 * Gets the value of the {@link Turret}'s {@link #limitReverse reverse limit
-	 * switch}.
-	 * 
-	 * @return The value of the {@link #limitReverse reverse limit switch}
-	 */
-	public boolean getReverseLimitSwitch() {
-		return limitReverse.get();
 	}
 
 	/**

@@ -17,11 +17,7 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 /**
@@ -135,9 +131,14 @@ public class RobotContainer extends LoopContainer {
 			indexer.stopPulley();
 		};
 		Runnable ballIn = () -> {
-			intake.setMotorSpeed(0.2);
+			intake.setMotorSpeed(-0.45);
 			indexer.setIndexerSpeed(1, 1);
-			indexer.setPulleySpeed(-1, -1);
+			indexer.setPulleySpeed(-0.5, -0.5);
+		};
+		Runnable ballOut = () -> {
+			intake.setMotorSpeed(0.45);
+			indexer.setIndexerSpeed(-1, -1);
+			indexer.setPulleySpeed(0.5, 0.5);
 		};
 
 		var toggleIntake = new StartEndCommand(intake::toggleSolenoid, intake::toggleSolenoid);
@@ -149,9 +150,6 @@ public class RobotContainer extends LoopContainer {
 		// ...
 
 		// Turret commands.
-		FunctionalCommand zeroTurret = new FunctionalCommand(() -> turret.reset(Rotation2d.fromDegrees(0)),
-				() -> turret.setMotor(-0.4), interrupted -> turret.reset(Rotation2d.fromDegrees(0)),
-				turret::getReverseLimitSwitch, turret);
 		// ...
 
 		// Shooter commands.
@@ -159,7 +157,7 @@ public class RobotContainer extends LoopContainer {
 			if (!shooter.onTarget())
 				return;
 			indexer.setIndexerSpeed(1, 1);
-			indexer.setPulleySpeed(1, 1);
+			indexer.setPulleySpeed(0.5, 0.5);
 		};
 		Consumer<Boolean> stopFeeding = interrupted -> { // Wish this was possible in League.
 			indexer.stopIndexer();
@@ -180,11 +178,6 @@ public class RobotContainer extends LoopContainer {
 		// ...
 
 		// Vision commands.
-		var aimChassis = new ProfiledPIDCommand(
-				new ProfiledPIDController(Constants.Aim.kP, Constants.Aim.kI, Constants.Aim.kD,
-						new TrapezoidProfile.Constraints(Constants.Aim.maxVelocity, Constants.Aim.maxAceleration)),
-				vision::getHorizontalRotation, () -> 0, (output, setpoint) -> chassis.arcadeDrive(0, output), chassis,
-				vision);
 		// ...
 
 		try { // Driver 1 commands.
@@ -193,7 +186,9 @@ public class RobotContainer extends LoopContainer {
 
 			driver1.get("L2", "LTrigger", "Trigger").whileHeld(toggleReduction);
 			driver1.get("R2", "RTrigger", "Thumb6").whileHeld(toggleHeading);
-			driver1.get("X", "Btn3", "Thumb5").whenPressed(chassis::toggleCheesy);
+
+			driver1.get("Circle", "Btn2", "Base7").whileHeld(ballIn).whenReleased(ballStop);
+			driver1.get("Square", "Btn4", "Base8").whileHeld(ballOut).whenReleased(ballStop);
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);
