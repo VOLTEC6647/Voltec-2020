@@ -41,7 +41,8 @@ public final class Constants {
 	}
 
 	public class TurretConstants {
-		public static final double rotationsPerTick = 1;
+		public static final double reduction = 702;
+		public static final double ticksPerRotation = 42;
 		public static final float tolerance = 0.01f;
 	}
 
@@ -49,10 +50,10 @@ public final class Constants {
 		public static final float tolerance = 30.0f;
 
 		// TODO: Set these accordingly.
-		public static final double initiationLineRPM = 0;
+		public static final double initiationLineRPM = 3000;
 		public static final double trenchRPM = 100;
 		public static final double behindTrenchRPM = 200;
-		public static final double cursedRPM = 300;
+		public static final double cursedRPM = 2000;
 	}
 
 	public class Aim {

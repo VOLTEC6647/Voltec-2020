@@ -3,6 +3,7 @@ package org.usfirst.frc6647.subsystems;
 import com.revrobotics.ControlType;
 
 import org.usfirst.frc6647.robot.Constants;
+import org.usfirst.frc6647.robot.Robot;
 import org.usfirst.frc6647.robot.RobotContainer;
 import org.usfirst.lib6647.loops.ILooper;
 import org.usfirst.lib6647.loops.Loop;
@@ -10,6 +11,8 @@ import org.usfirst.lib6647.loops.LoopType;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 import org.usfirst.lib6647.subsystem.hypercomponents.HyperSparkMax;
 import org.usfirst.lib6647.subsystem.supercomponents.SuperSparkMax;
+import org.usfirst.lib6647.vision.LimelightCamera;
+import org.usfirst.lib6647.vision.LimelightData.Data;
 
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -27,6 +30,9 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	/** Whether or not the {@link Turret} is currently aiming. */
 	private boolean aiming = false;
 
+	/** The {@link Robot}'s frontal {@link LimelightCamera} instance. */
+	private LimelightCamera limelight;
+
 	/**
 	 * Should only need to create a single of instance of {@link Turret this class};
 	 * inside the {@link RobotContainer}.
@@ -41,6 +47,8 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 
 		// Additional initialiation & configuration.
 		turret = getSpark("turret");
+
+		limelight = new LimelightCamera("limelight");
 		// ...
 	}
 
@@ -52,7 +60,10 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 		layout.addString("angleFull", () -> getAngle().toString());
 
 		layout.addNumber("setpoint", this::getSetpoint);
-		layout.addBoolean("onTarget", this::onTarget).withWidget(BuiltInWidgets.kBooleanBox);
+
+		layout.addBoolean("isOnline", limelight::isConnected).withWidget(BuiltInWidgets.kBooleanBox);
+		layout.addBoolean("targetFound", limelight::isTargetFound).withWidget(BuiltInWidgets.kBooleanBox);
+		layout.addNumber("horizontalRotation", this::getHorizontalRotation);
 	}
 
 	/**
@@ -62,7 +73,9 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 *              motor}
 	 */
 	public void setMotor(double speed) {
-		turret.set(speed);
+		setpoint = (getAngle().getRadians()
+				* (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction)) / 360;
+		turret.getPIDController().setReference(speed, ControlType.kDutyCycle);
 	}
 
 	/**
@@ -79,7 +92,8 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 * @param angle The angle at which to set the {@link #turretPID}'s setpoint
 	 */
 	public void setDesiredAngle(Rotation2d angle) {
-		setpoint = angle.getRadians() / (2 * Math.PI * Constants.TurretConstants.rotationsPerTick);
+		setpoint = (angle.getRadians()
+				* (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction)) / 360;
 		turret.getPIDController().setReference(setpoint, ControlType.kPosition);
 	}
 
@@ -89,8 +103,8 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 * @param angle The angle at which to reset the {@link #turretEncoder}
 	 */
 	public void reset(Rotation2d angle) {
-		turret.getEncoder()
-				.setPosition(angle.getRadians() / (2 * Math.PI * Constants.TurretConstants.rotationsPerTick));
+		turret.getEncoder().setPosition((angle.getRadians()
+				* (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction)) / 360);
 	}
 
 	/**
@@ -99,8 +113,8 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 * @return The current {@link Rotation2d angle}
 	 */
 	public Rotation2d getAngle() {
-		return new Rotation2d(
-				Constants.TurretConstants.rotationsPerTick * turret.getEncoder().getPosition() * 2 * Math.PI);
+		return new Rotation2d(turret.getEncoder().getPosition() * 360
+				/ (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction));
 	}
 
 	/**
@@ -109,7 +123,8 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 * @return The {@link Turret}'s current {@link #setpoint} value
 	 */
 	public double getSetpoint() {
-		return setpoint;
+		return Math.toDegrees(
+				(setpoint * 360) / (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction));
 	}
 
 	/**
@@ -122,14 +137,19 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	}
 
 	/**
-	 * Checks if the {@link Turret}'s {@link #turret motor}'s current position is
-	 * within tolerance.
+	 * Gets the {@link Robot}'s horizontal rotation to the target, in degrees.
 	 * 
-	 * @return Whether or not the {@link Turret}'s {@link #turret motor}'s current
-	 *         position is within tolerance
+	 * @return The target's horizontal rotation in relation to the {@link Robot}
 	 */
-	public boolean onTarget() {
-		return Math.abs(getError()) < Constants.TurretConstants.tolerance;
+	public double getHorizontalRotation() {
+		return limelight.getData(Data.HORIZONTAL_OFFSET);
+	}
+
+	/**
+	 * Toggles whether or not to start aiming the {@link #turret}.
+	 */
+	public void toggleAim() {
+		aiming = !aiming;
 	}
 
 	@Override
@@ -153,9 +173,11 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 					return;
 
 				synchronized (Turret.this) {
-					// TODO: Get Vision subsystem to affect this.
+					if (!limelight.isTargetFound()) // Checks if a target is found by the Limelight
+						return;
 
-					turret.getPIDController().setReference(0.0, ControlType.kPosition);
+					turret.getPIDController().setReference(turret.getEncoder().getPosition() + getHorizontalRotation(),
+							ControlType.kPosition);
 				}
 			}
 

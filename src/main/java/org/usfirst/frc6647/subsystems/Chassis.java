@@ -183,7 +183,7 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 			@Override
 			public void onStart(double timestamp) {
 				synchronized (Chassis.this) {
-					// compressor.start();
+					compressor.start();
 					System.out.println("Started arcade drive at: " + timestamp + "!");
 				}
 			}
@@ -200,7 +200,7 @@ public class Chassis extends SuperSubsystem implements SuperCompressor, SuperDou
 
 			@Override
 			public void onStop(double timestamp) {
-				// compressor.stop();
+				compressor.stop();
 
 				frontLeft.stopMotor();
 				frontRight.stopMotor();

@@ -17,7 +17,7 @@
 			{
 				"name": "frontLeft",
 				"port": 1,
-				"limiter": 1,
+				"limiter": 0.75,
 				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
@@ -36,7 +36,7 @@
 			{
 				"name": "frontRight",
 				"port": 2,
-				"limiter": 1,
+				"limiter": 0.75,
 				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
@@ -55,7 +55,7 @@
 			{
 				"name": "backLeft",
 				"port": 3,
-				"limiter": 1,
+				"limiter": 0.75,
 				"neutralMode": "Coast",
 				"inverted": true,
 				"sensors": {
@@ -74,7 +74,7 @@
 			{
 				"name": "backRight",
 				"port": 4,
-				"limiter": 1,
+				"limiter": 0.75,
 				"neutralMode": "Coast",
 				"inverted": false,
 				"sensors": {
@@ -125,9 +125,10 @@
 				"name": "turret",
 				"port": 3,
 				"type": "Brushless",
+				"inverted": true,
 				"idleMode": "Brake",
-				"softLimitForward": 300,
-				"softLimitBackward": -300,
+				"softLimitForward": 180,
+				"softLimitReverse": -180,
 				"pid": {
 					"slot0": {
 						"p": 0.5,

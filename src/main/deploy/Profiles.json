@@ -1,7 +1,7 @@
 {
 	"Wireless Controller": {
 		"Square": "Button1",
-		"X": "Button2",
+		"Cross": "Button2",
 		"Circle": "Button3",
 		"Triangle": "Button4",
 		"L1": "Button5",
@@ -28,7 +28,7 @@
 		"RStickDown": "Stick5_1"
 	},
 	"Sony Computer Entertainment Wireless Controller": {
-		"X": "Button1",
+		"Cross": "Button1",
 		"Circle": "Button2",
 		"Triangle": "Button3",
 		"Square": "Button4",

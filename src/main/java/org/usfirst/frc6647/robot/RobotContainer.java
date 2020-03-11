@@ -1,5 +1,11 @@
 package org.usfirst.frc6647.robot;
 
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.behindTrenchRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.cursedRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.initiationLineRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.trenchRPM;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import org.usfirst.frc6647.subsystems.Chassis;
@@ -9,7 +15,6 @@ import org.usfirst.frc6647.subsystems.Indexer;
 import org.usfirst.frc6647.subsystems.Intake;
 import org.usfirst.frc6647.subsystems.Shooter;
 import org.usfirst.frc6647.subsystems.Turret;
-import org.usfirst.frc6647.subsystems.Vision;
 import org.usfirst.lib6647.loops.Loop;
 import org.usfirst.lib6647.loops.LoopContainer;
 import org.usfirst.lib6647.oi.JController;
@@ -17,6 +22,7 @@ import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
@@ -40,8 +46,6 @@ public class RobotContainer extends LoopContainer {
 	private Indexer indexer;
 	/** The {@link Robot}'s {@link Elevator} instance. */
 	private Elevator elevator;
-	/** The {@link Robot}'s {@link Vision} instance. */
-	private Vision vision;
 
 	@Override
 	public void initSubsystems() {
@@ -53,10 +57,9 @@ public class RobotContainer extends LoopContainer {
 		shooter = new Shooter();
 		indexer = new Indexer();
 		elevator = new Elevator();
-		vision = new Vision();
 
 		// Register each initialized Subsystem.
-		registerSubsystems(chassis, gyro, intake, turret, shooter, indexer, elevator, vision);
+		registerSubsystems(chassis, gyro, intake, turret, shooter, indexer, elevator);
 	}
 
 	@Override
@@ -75,9 +78,8 @@ public class RobotContainer extends LoopContainer {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 3, 4);
 		} else if (driver1.getName().equals("Logitech Extreme 3D")) {
-			driver1.setAxisTolerance(0.01);
-			driver1.setXY(Hand.kLeft, 2, 1);
-			driver1.setXY(Hand.kRight, 0, 3);
+			driver1.setXY(Hand.kLeft, 0, 1);
+			driver1.setXY(Hand.kRight, 2, 3);
 		} else if (driver1.getName().equals("Generic   USB  Joystick")) {
 			driver1.setXY(Hand.kLeft, 0, 1);
 			driver1.setXY(Hand.kRight, 2, 4);
@@ -97,7 +99,6 @@ public class RobotContainer extends LoopContainer {
 			driver2.setXY(Hand.kLeft, 0, 1);
 			driver2.setXY(Hand.kRight, 3, 4);
 		} else if (driver2.getName().equals("Logitech Extreme 3D")) {
-			driver2.setAxisTolerance(0.01);
 			driver2.setXY(Hand.kLeft, 2, 1);
 			driver2.setXY(Hand.kRight, 0, 3);
 		} else if (driver2.getName().equals("Generic   USB  Joystick")) {
@@ -150,34 +151,41 @@ public class RobotContainer extends LoopContainer {
 		// ...
 
 		// Turret commands.
+		var turretLeft = new StartEndCommand(() -> turret.setMotor(-0.2), turret::stopMotor);
+		var turretRight = new StartEndCommand(() -> turret.setMotor(0.2), turret::stopMotor);
+		var toggleAim = new StartEndCommand(turret::toggleAim, turret::toggleAim);
 		// ...
 
 		// Shooter commands.
-		Runnable startFeeding = () -> {
+		BooleanSupplier forever = () -> false; // Runs a command forever, or until it is interrupted.
+
+		Runnable startFeeding = () -> { // My bot lane every game.
+			driver2.setRumble(RumbleType.kLeftRumble, 1);
+			driver2.setRumble(RumbleType.kRightRumble, 1);
+
 			if (!shooter.onTarget())
 				return;
+
 			indexer.setIndexerSpeed(1, 1);
-			indexer.setPulleySpeed(0.5, 0.5);
+			indexer.setPulleySpeed(-0.5, -0.5);
 		};
 		Consumer<Boolean> stopFeeding = interrupted -> { // Wish this was possible in League.
+			driver2.setRumble(RumbleType.kLeftRumble, 0);
+			driver2.setRumble(RumbleType.kRightRumble, 0);
+
 			indexer.stopIndexer();
 			indexer.stopPulley();
 			shooter.stopMotor();
 		};
 
-		var initiationLineShoot = new FunctionalCommand(
-				() -> shooter.setMotor(Constants.ShooterConstants.initiationLineRPM), startFeeding, stopFeeding,
-				() -> false, indexer, shooter);
-		var trenchShoot = new FunctionalCommand(() -> shooter.setMotor(Constants.ShooterConstants.trenchRPM),
-				startFeeding, stopFeeding, () -> false, indexer, shooter);
-		var behindTrenchShoot = new FunctionalCommand(
-				() -> shooter.setMotor(Constants.ShooterConstants.behindTrenchRPM), startFeeding, stopFeeding,
-				() -> false, indexer, shooter);
-		var cursedShoot = new FunctionalCommand(() -> shooter.setMotor(Constants.ShooterConstants.cursedRPM),
-				startFeeding, stopFeeding, () -> false, indexer, shooter);
-		// ...
-
-		// Vision commands.
+		var initiationLineShoot = new FunctionalCommand(() -> shooter.setMotor(initiationLineRPM), startFeeding,
+				stopFeeding, forever, indexer, shooter);
+		var trenchShoot = new FunctionalCommand(() -> shooter.setMotor(trenchRPM), startFeeding, stopFeeding, forever,
+				indexer, shooter);
+		var behindTrenchShoot = new FunctionalCommand(() -> shooter.setMotor(behindTrenchRPM), startFeeding,
+				stopFeeding, forever, indexer, shooter);
+		var cursedShoot = new FunctionalCommand(() -> shooter.setMotor(cursedRPM), startFeeding, stopFeeding, forever,
+				indexer, shooter);
 		// ...
 
 		try { // Driver 1 commands.
@@ -187,8 +195,8 @@ public class RobotContainer extends LoopContainer {
 			driver1.get("L2", "LTrigger", "Trigger").whileHeld(toggleReduction);
 			driver1.get("R2", "RTrigger", "Thumb6").whileHeld(toggleHeading);
 
-			driver1.get("Circle", "Btn2", "Base7").whileHeld(ballIn).whenReleased(ballStop);
-			driver1.get("Square", "Btn4", "Base8").whileHeld(ballOut).whenReleased(ballStop);
+			driver1.get("Circle", "B", "Btn2", "Base7").whileHeld(ballIn).whenReleased(ballStop);
+			driver1.get("Square", "X", "Btn4", "Base8").whileHeld(ballOut).whenReleased(ballStop);
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);
@@ -197,14 +205,17 @@ public class RobotContainer extends LoopContainer {
 		try { // Driver 2 commands.
 			driver2.get("L2", "LTrigger").whileHeld(toggleIntake);
 			driver2.get("L1", "LBumper").whileHeld(ballIn).whenReleased(ballStop);
+			driver2.get("R2", "RTrigger").whileHeld(toggleAim);
 
-			driver2.get("X", "Btn3").whileHeld(initiationLineShoot);
-			driver2.get("Circle", "Btn2").whileHeld(trenchShoot);
-			driver2.get("Square", "Btn4").whileHeld(behindTrenchShoot);
-			driver2.get("Triangle", "Btn1").whileHeld(cursedShoot);
+			driver2.get("Cross", "A", "Btn3").whileHeld(initiationLineShoot);
+			driver2.get("Circle", "B", "Btn2").whileHeld(trenchShoot);
+			driver2.get("Square", "X", "Btn4").whileHeld(behindTrenchShoot);
+			driver2.get("Triangle", "Y", "Btn1").whileHeld(cursedShoot);
 
 			driver2.get("dPadUp").whileHeld(climberUp);
 			driver2.get("dPadDown").whileHeld(climberDown);
+			driver2.get("dPadLeft").whileHeld(turretLeft);
+			driver2.get("dPadRight").whileHeld(turretRight);
 		} catch (NullPointerException e) {
 			System.out.println(e.getLocalizedMessage());
 			DriverStation.reportError(e.getLocalizedMessage(), false);
