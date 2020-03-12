@@ -54,6 +54,7 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 		stop = getDoubleSolenoid("stop");
 
 		shooter = getSpark("shooter");
+		shooter.setOpenLoopRampRate(1);
 		// ...
 	}
 
@@ -78,21 +79,13 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 * updates both the setpoint {@link #layout layout} and {@link #setpoint
 	 * variable}.
 	 * 
-	 * @param rpm The rpm at which to turn the {@link #shooter}
+	 * @param rpm   The rpm at which to turn the {@link #shooter}
+	 * @param angle The angle at which to set the {@link #hood}
 	 */
-	public void setMotor(double rpm) {
+	public void set(double rpm, double angle) {
 		setpoint = rpm;
+		hood.setAngle(angle);
 		shooter.getPIDController().setReference(rpm, ControlType.kVelocity);
-	}
-
-	/**
-	 * Sets the {@link Shooter}'s {@link #shooter motor} to the specified
-	 * percentage.
-	 * 
-	 * @param percentage
-	 */
-	public void setMotorPercentage(double percentage) {
-		shooter.set(percentage);
 	}
 
 	/**
@@ -100,6 +93,7 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 	 */
 	public void stopMotor() {
 		shooter.stopMotor();
+		hood.setAngle(20);
 	}
 
 	/**

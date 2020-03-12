@@ -1,8 +1,12 @@
 package org.usfirst.frc6647.robot;
 
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.behindTrenchAngle;
 import static org.usfirst.frc6647.robot.Constants.ShooterConstants.behindTrenchRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.cursedAngle;
 import static org.usfirst.frc6647.robot.Constants.ShooterConstants.cursedRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.initiationLineAngle;
 import static org.usfirst.frc6647.robot.Constants.ShooterConstants.initiationLineRPM;
+import static org.usfirst.frc6647.robot.Constants.ShooterConstants.trenchAngle;
 import static org.usfirst.frc6647.robot.Constants.ShooterConstants.trenchRPM;
 
 import java.util.function.BooleanSupplier;
@@ -178,19 +182,19 @@ public class RobotContainer extends LoopContainer {
 			shooter.stopMotor();
 		};
 
-		var initiationLineShoot = new FunctionalCommand(() -> shooter.setMotor(initiationLineRPM), startFeeding,
-				stopFeeding, forever, indexer, shooter);
-		var trenchShoot = new FunctionalCommand(() -> shooter.setMotor(trenchRPM), startFeeding, stopFeeding, forever,
-				indexer, shooter);
-		var behindTrenchShoot = new FunctionalCommand(() -> shooter.setMotor(behindTrenchRPM), startFeeding,
-				stopFeeding, forever, indexer, shooter);
-		var cursedShoot = new FunctionalCommand(() -> shooter.setMotor(cursedRPM), startFeeding, stopFeeding, forever,
-				indexer, shooter);
+		var initiationLineShoot = new FunctionalCommand(() -> shooter.set(initiationLineRPM, initiationLineAngle),
+				startFeeding, stopFeeding, forever, indexer, shooter);
+		var trenchShoot = new FunctionalCommand(() -> shooter.set(trenchRPM, trenchAngle), startFeeding, stopFeeding,
+				forever, indexer, shooter);
+		var behindTrenchShoot = new FunctionalCommand(() -> shooter.set(behindTrenchRPM, behindTrenchAngle),
+				startFeeding, stopFeeding, forever, indexer, shooter);
+		var cursedShoot = new FunctionalCommand(() -> shooter.set(cursedRPM, cursedAngle), startFeeding, stopFeeding,
+				forever, indexer, shooter);
 		// ...
 
 		try { // Driver 1 commands.
 			driver1.get("Options", "Start", "Base12").whenPressed(chassis::prepareSong);
-			driver1.get("Touchpad", "Select", "PS4Btn", "Base11").whenPressed(chassis::toggleSong);
+			driver1.get("Touchpad", "Select", "Back", "PS4Btn", "Base11").whenPressed(chassis::toggleSong);
 
 			driver1.get("L2", "LTrigger", "Trigger").whileHeld(toggleReduction);
 			driver1.get("R2", "RTrigger", "Thumb6").whileHeld(toggleHeading);

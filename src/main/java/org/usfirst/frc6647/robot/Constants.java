@@ -23,8 +23,8 @@ public final class Constants {
 		public static final double trackWidthMeters = 0.6647246510483854;
 
 		private static final double wheelDiameterMeters = 0.1524;
-		private static final int encoderCPR = 2048;
-		public static final double encoderDistancePerPulse = (wheelDiameterMeters * Math.PI) / (double) encoderCPR;
+		private static final double encoderCPR = 14933.19;
+		public static final double encoderDistancePerPulse = (wheelDiameterMeters * Math.PI) / encoderCPR;
 
 		public static final double ksVolts = 0.836;
 		public static final double kvVoltSecondsPerMeter = 3.16;
@@ -49,11 +49,15 @@ public final class Constants {
 	public class ShooterConstants {
 		public static final float tolerance = 30.0f;
 
-		// TODO: Set these accordingly.
-		public static final double initiationLineRPM = 3000;
-		public static final double trenchRPM = 100;
-		public static final double behindTrenchRPM = 200;
-		public static final double cursedRPM = 2000;
+		public static final double initiationLineRPM = 2100;
+		public static final double trenchRPM = 2750;
+		public static final double behindTrenchRPM = 3555;
+		public static final double cursedRPM = 1800;
+		
+		public static final double initiationLineAngle = 50;
+		public static final double trenchAngle = 59;
+		public static final double behindTrenchAngle = 57;
+		public static final double cursedAngle = 20;
 	}
 
 	public class Aim {

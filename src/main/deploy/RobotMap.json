@@ -18,7 +18,7 @@
 				"name": "frontLeft",
 				"port": 1,
 				"limiter": 0.75,
-				"neutralMode": "Coast",
+				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -29,7 +29,7 @@
 				},
 				"config": {
 					"loopRamp": {
-						"openloopRamp": 2
+						"openloopRamp": 0.75
 					}
 				}
 			},
@@ -37,7 +37,7 @@
 				"name": "frontRight",
 				"port": 2,
 				"limiter": 0.75,
-				"neutralMode": "Coast",
+				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -48,7 +48,7 @@
 				},
 				"config": {
 					"loopRamp": {
-						"openloopRamp": 2
+						"openloopRamp": 0.75
 					}
 				}
 			},
@@ -56,7 +56,7 @@
 				"name": "backLeft",
 				"port": 3,
 				"limiter": 0.75,
-				"neutralMode": "Coast",
+				"neutralMode": "Brake",
 				"inverted": true,
 				"sensors": {
 					"phase": false,
@@ -67,7 +67,7 @@
 				},
 				"config": {
 					"loopRamp": {
-						"openloopRamp": 2
+						"openloopRamp": 0.75
 					}
 				}
 			},
@@ -75,7 +75,7 @@
 				"name": "backRight",
 				"port": 4,
 				"limiter": 0.75,
-				"neutralMode": "Coast",
+				"neutralMode": "Brake",
 				"inverted": false,
 				"sensors": {
 					"phase": false,
@@ -86,7 +86,7 @@
 				},
 				"config": {
 					"loopRamp": {
-						"openloopRamp": 2
+						"openloopRamp": 0.75
 					}
 				}
 			}
