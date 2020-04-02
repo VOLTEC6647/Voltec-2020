@@ -13,6 +13,7 @@ import org.usfirst.lib6647.loops.LoopType;
 import org.usfirst.lib6647.oi.JController;
 import org.usfirst.lib6647.subsystem.SuperSubsystem;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
@@ -38,6 +39,9 @@ public class Robot extends JSONRobot {
 	public synchronized static Robot getInstance() {
 		return instance;
 	}
+
+	/** Command to run in autonomous. */
+	private Command autonomousCommand;
 
 	/**
 	 * Constructor for this implementation of {@link LooperRobot}, should only need
@@ -77,10 +81,18 @@ public class Robot extends JSONRobot {
 		container.getLooper(LoopType.TELEOP).stop();
 		container.getLooper(LoopType.AUTO).start();
 		container.getLooper(LoopType.DISABLED).stop();
+
+		autonomousCommand = container.getAutonomousCommand();
+
+		if (autonomousCommand != null)
+			autonomousCommand.schedule();
 	}
 
 	@Override
 	public void teleopInit() {
+		if (autonomousCommand != null)
+			autonomousCommand.cancel();
+
 		// Start enabled & teleop loops, stop auto & disabled.
 		container.getLooper(LoopType.ENABLED).start();
 		container.getLooper(LoopType.TELEOP).start();

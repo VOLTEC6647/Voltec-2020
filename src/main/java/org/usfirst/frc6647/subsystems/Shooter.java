@@ -55,6 +55,8 @@ public class Shooter extends SuperSubsystem implements SuperDoubleSolenoid, Supe
 
 		shooter = getSpark("shooter");
 		shooter.setOpenLoopRampRate(1);
+
+		hood.setAngle(20); // Should not be necessary, but just in case.
 		// ...
 	}
 

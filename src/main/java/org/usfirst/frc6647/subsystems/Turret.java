@@ -79,13 +79,6 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	}
 
 	/**
-	 * Stops the {@link Turret}'s {@link #turret motor} dead in its tracks.
-	 */
-	public void stopMotor() {
-		turret.stopMotor();
-	}
-
-	/**
 	 * Sets the {@link #turretPID} to the specified angle, also updates the
 	 * {@link #setpoint} variable.
 	 * 
@@ -95,6 +88,20 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 		setpoint = (angle.getRadians()
 				* (Constants.TurretConstants.ticksPerRotation * Constants.TurretConstants.reduction)) / 360;
 		turret.getPIDController().setReference(setpoint, ControlType.kPosition);
+	}
+
+	/**
+	 * Stops the {@link Turret}'s {@link #turret motor} dead in its tracks.
+	 */
+	public void stopMotor() {
+		turret.stopMotor();
+	}
+
+	/**
+	 * Toggles whether or not to start aiming the {@link #turret}.
+	 */
+	public void toggleAim() {
+		aiming = !aiming;
 	}
 
 	/**
@@ -143,13 +150,6 @@ public class Turret extends SuperSubsystem implements SuperSparkMax {
 	 */
 	public double getHorizontalRotation() {
 		return limelight.getData(Data.HORIZONTAL_OFFSET);
-	}
-
-	/**
-	 * Toggles whether or not to start aiming the {@link #turret}.
-	 */
-	public void toggleAim() {
-		aiming = !aiming;
 	}
 
 	@Override

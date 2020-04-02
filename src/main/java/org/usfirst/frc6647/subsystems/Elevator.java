@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
  * {@link SuperSubsystem} implementation for our {@link Elevator}.
  */
 public class Elevator extends SuperSubsystem implements SuperSparkMax {
-	/** {@link HyperSparkMax} instance used by this {@link Elevator subsystem}. */
+	/** {@link HyperSparkMax} used by this {@link Elevator subsystem}. */
 	private HyperSparkMax elevator;
 
 	/**

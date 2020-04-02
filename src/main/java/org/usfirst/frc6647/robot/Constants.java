@@ -18,26 +18,29 @@ package org.usfirst.frc6647.robot;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+	public class AutoConstants {
+		public static final double kMaxSpeedMetersPerSecond = 2;
+		public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+
+		public static final double kRamseteB = 2;
+		public static final double kRamseteZeta = 0.7;
+
+		public static final double ksVolts = 0.155;
+		public static final double kvVoltSecondsPerMeter = 1.67;
+		public static final double kaVoltSecondsSquaredPerMeter = 0.148;
+
+		public static final double kPDriveVel = 0.00318;
+	}
+
 	public class DriveConstants {
-		// TODO: Set these accordingly.
-		public static final double trackWidthMeters = 0.6647246510483854;
+		public static final double collisionThresholdDeltaG = 0.25f;
+
+		public static final double trackWidthMeters = 0.62;
 
 		private static final double wheelDiameterMeters = 0.1524;
 		private static final double encoderCPR = 14933.19;
 		public static final double encoderDistancePerPulse = (wheelDiameterMeters * Math.PI) / encoderCPR;
-
-		public static final double ksVolts = 0.836;
-		public static final double kvVoltSecondsPerMeter = 3.16;
-		public static final double kaVoltSecondsSquaredPerMeter = 0.416;
-
-		public static final double kPDriveVel = 47.7;
-	}
-
-	public class AutoConstants {
-	}
-
-	public class GyroConstants {
-		public static final double collisionThresholdDeltaG = 0.25f;
 	}
 
 	public class TurretConstants {
@@ -53,18 +56,10 @@ public final class Constants {
 		public static final double trenchRPM = 2750;
 		public static final double behindTrenchRPM = 3555;
 		public static final double cursedRPM = 1800;
-		
+
 		public static final double initiationLineAngle = 50;
 		public static final double trenchAngle = 59;
 		public static final double behindTrenchAngle = 57;
 		public static final double cursedAngle = 20;
-	}
-
-	public class Aim {
-		public static final double kP = 0;
-		public static final double kI = 0;
-		public static final double kD = 0;
-		public static final int maxVelocity = 360;
-		public static final int maxAceleration = 360;
 	}
 }
